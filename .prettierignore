@@ -3,3 +3,4 @@ dist
 package-lock.json
 artifacts
 .playwright-mcp
+assets/vehicles/bkm32100d/source/manifest.json
