@@ -2,7 +2,23 @@
 
 Checked locally on 24 October 2026 with Node 24.18, Vite 7.3.7, Three.js 0.186, React 19 and Vitest 4.1.12.
 
-## Model and suspension update
+## Detailed vehicle and city update
+
+The second photo-guided revision passes all **29 tests**, the production build, ESLint, architecture boundaries, formatting and diff checks. New layout checks enforce separation between the doors and wheel arches, a 0.98 m equipment bay behind the rear door, and agreement between the rendered axle spacing and the controller's wheelbase. The fleet test still completes three round trips per vehicle without contact loss, overlapping bodies or movement with open doors.
+
+Chromium inspection at 1440 × 900 covered both sides, front and rear, open doors, a moving corner and the city overview/follow cameras. The equipment bay is solid above the waist, with service panels and ventilation; door leaves remain clear of its geometry. The front and rear lens textures emit light, and brake-lens intensity changes from 0.4 to 1.7 under deceleration. Across nine combined roll/pitch poses, rendered pole mounts agree with the contact solver within `3e-15 m`; all four wheel centres retain their road-relative height. The captured driving corner has 1.76° outward lean with both poles connected.
+
+The model uses approximately 35,400 triangles, including wheels, poles and the selection ring. One 1024² atlas per fleet vehicle supplies labels, grilles, lamps and wheel detail; a shared 128-pixel PMREM environment supplies reflections without rendering scene probes every frame. An isolated front view submits 170 draw calls including the shadow pass. The city and roadside geometry use 46 mesh objects after batching (previously 491), retaining separate textured and transparent surfaces.
+
+Equivalent moving follow-view samples before and after the revision used a 1200 × 796 viewport, device scale factor 2, the renderer's 1.7 pixel-ratio cap and 180 animation frames. Runs averaged approximately 16.67 ms per frame (60 fps); the 95th percentile was 17.7 ms before and 17.6–20.1 ms in the two post-change samples. The final follow frame submitted 360 draw calls and approximately 641,000 triangles, including shadow passes. These are short local Chromium samples, not a hardware or cross-browser performance guarantee.
+
+Two forced WebGL context-loss/restoration cycles rebuilt the shared reflection map, cleared the graphics-error UI and restored identical renderer resource counts (19 textures). No console errors or warnings were recorded during those cycles.
+
+The final production preview renders all three fleet vehicles and the updated city, with working follow/zoom controls and no browser console errors or warnings. The development hook and wire-debug control are absent. Its follow screenshot is `artifacts/detailed-production-follow.png`.
+
+Current screenshots are `artifacts/detailed-trolleybus-{front,rear,side-open,driver-side,cornering}.png` and `artifacts/detailed-city-{follow,overview}.png`. They are local, ignored review artifacts.
+
+## Earlier model and suspension update
 
 The photo-guided model revision passes all **26 tests**, the production build, ESLint, architecture boundaries, formatting and diff checks. The fleet test still completes three round trips per vehicle without contact loss, overlapping bodies or movement with open doors.
 
@@ -47,4 +63,4 @@ Screenshots are saved locally under `artifacts/` (ignored by version control).
 
 The circuit is compressed to approximately 756 m. The main passenger route traverses the scheduled main edge at the depot turnout; the alternate branch has geometry and a switch-selection contract but no passenger dispatch. Dynamics follow the road centreline. There is no free driving, electrical grid, traffic AI or passenger pathfinding.
 
-Vite reports a bundle-size advisory for the approximately 875 kB JavaScript entry (242 kB gzip), chiefly the Three.js renderer and React. Production builds succeed. Splitting the application shell and renderer for caching is a useful delivery improvement for a later version.
+Vite reports a bundle-size advisory for the approximately 911 kB JavaScript entry (254 kB gzip), chiefly the Three.js renderer and React. Production builds succeed. Splitting the application shell and renderer for caching is a useful delivery improvement for a later version.

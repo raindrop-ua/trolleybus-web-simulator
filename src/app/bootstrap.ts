@@ -93,7 +93,13 @@ export function bootstrap(host: HTMLElement) {
   };
   window.addEventListener('keydown', key);
   if (import.meta.env.DEV)
-    Object.assign(window, { __trolleybus: { snapshot: () => engine.snapshot(), world } });
+    Object.assign(window, {
+      __trolleybus: {
+        snapshot: () => engine.snapshot(),
+        renderStats: () => scene.statistics(),
+        world,
+      },
+    });
   return () => {
     window.removeEventListener('keydown', key);
     if (import.meta.env.DEV) Reflect.deleteProperty(window, '__trolleybus');

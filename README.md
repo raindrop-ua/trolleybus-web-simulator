@@ -46,7 +46,8 @@ Dragging the camera leaves follow mode. Pausing stops simulated time while camer
 ## What's in this version
 
 - Three 12 m trolleybuses, fleet numbers **2001**, **2002** and **2003**, with animated wheels, steering, body suspension and three pairs of opening doors.
-- Photo-guided low-poly bodywork: a panoramic V-shaped front mask, sloping blue roof fairings, clear wheel arches, glazed doors and pole mounts just behind the roof centre.
+- Photo-guided detailed bodywork: a 0.98 m electrical bay behind the rear door, panoramic curved glazing, sloping roof fairings, profiled tires with rear dual wheels, service hatches, ventilation, pole springs and retrieval ropes.
+- A shared 1024 px surface atlas per vehicle supplies grilles, panel hardware, route displays and markings. Fleet paint and glass use one small prefiltered reflection map; the city stays more restrained, with instanced façade, tree, car and street details.
 - Gentle outward body lean in corners, limited to **2.5°**, with a damped return to level. Wheels stay grounded and pole contact follows the sprung roof.
 - Five named places served in both directions: Station, Central Square, University, Riverside and Park. These are **ten directional stop visits per round trip**.
 - A directed road circuit made from arc-length sampled cubic Bézier segments, including terminal loops and slower curved sections.
@@ -80,7 +81,7 @@ Camera framing, lighting, the city seed and palette are configured in `src/data/
 
 ## Development diagnostics
 
-The contact debug view and the `D` shortcut are enabled only when `import.meta.env.DEV` is true. A development build also exposes `window.__trolleybus.snapshot()` and `window.__trolleybus.world` for inspection. Production builds do not install these debugging hooks.
+The contact debug view and the `D` shortcut are enabled only when `import.meta.env.DEV` is true. A development build also exposes `window.__trolleybus.snapshot()`, `window.__trolleybus.renderStats()` (draw calls, triangles, GPU resource counts and pixel ratio), and `window.__trolleybus.world` for inspection. Production builds do not install these debugging hooks.
 
 Tests cover route continuity and arc-length sampling, paired contact geometry across repeated loops, unreachable-wire reporting, fixed-step timing, deterministic resets, stop/door sequencing, following gaps and timetable events. Run the scripts above to check the current checkout; browser behaviour and performance need their own visual checks.
 

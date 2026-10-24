@@ -6,6 +6,7 @@ import { createTrolleybus, type TrolleybusVisual } from './vehicles/Trolleybus';
 import { OverheadScene } from './overhead/OverheadScene';
 import { CameraRig } from './cameras/CameraRig';
 import { LIGHTING_SETTINGS } from '../data/presentation';
+import { createVehicleEnvironment } from './vehicles/vehicleEnvironment';
 
 export interface ViewState {
   selectedId: string;
@@ -28,6 +29,8 @@ export class SceneRenderer {
   private raycaster = new THREE.Raycaster();
   private pointerDown = { x: 0, y: 0 };
   private cleanup: (() => void)[] = [];
+  private vehicleEnvironment: THREE.WebGLRenderTarget;
+  private vehicleEnvironmentDisposed = false;
 
   constructor(host: HTMLElement, world: WorldDefinition, callbacks: SceneCallbacks) {
     this.renderer = new THREE.WebGLRenderer({
@@ -40,6 +43,7 @@ export class SceneRenderer {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = LIGHTING_SETTINGS.exposure;
+    this.vehicleEnvironment = createVehicleEnvironment(this.renderer);
     const canvas = this.renderer.domElement;
     canvas.setAttribute(
       'aria-label',
@@ -75,7 +79,7 @@ export class SceneRenderer {
     this.overhead = new OverheadScene(world);
     this.scene.add(this.overhead.group);
     for (const config of world.vehicles) {
-      const visual = createTrolleybus(config.id);
+      const visual = createTrolleybus(config.id, this.vehicleEnvironment.texture);
       visual.group.userData.vehicleId = config.id;
       this.buses.set(config.id, visual);
       this.scene.add(visual.group);
@@ -134,9 +138,37 @@ export class SceneRenderer {
     };
     const lost = (event: Event) => {
       event.preventDefault();
+      // Release the target through Three's old GL bookkeeping while it still
+      // owns the lost context. Old GPU handles cannot be deleted after restore.
+      if (!this.vehicleEnvironmentDisposed) {
+        this.vehicleEnvironment.dispose();
+        this.vehicleEnvironmentDisposed = true;
+      }
       callbacks.contextLost(true);
     };
-    const restored = () => callbacks.contextLost(false);
+    const restored = () => {
+      // Three registers its synchronous restoration listener in its constructor,
+      // before this listener. Its GL state is ready when we regenerate the PMREM.
+      const previousEnvironment = this.vehicleEnvironment;
+      const restoredEnvironment = createVehicleEnvironment(this.renderer);
+      const materials = new Set<THREE.Material>();
+      this.scene.traverse((object) => {
+        if (!(object instanceof THREE.Mesh || object instanceof THREE.Line)) return;
+        const objectMaterials = Array.isArray(object.material)
+          ? object.material
+          : [object.material];
+        objectMaterials.forEach((material) => materials.add(material));
+      });
+      for (const material of materials) {
+        if ('envMap' in material && material.envMap === previousEnvironment.texture) {
+          material.envMap = restoredEnvironment.texture;
+          material.needsUpdate = true;
+        }
+      }
+      this.vehicleEnvironment = restoredEnvironment;
+      this.vehicleEnvironmentDisposed = false;
+      callbacks.contextLost(false);
+    };
     canvas.addEventListener('pointerdown', down);
     canvas.addEventListener('pointerup', up);
     canvas.addEventListener('pointermove', move);
@@ -156,6 +188,16 @@ export class SceneRenderer {
   }
   start(tick: (time: number) => void) {
     this.renderer.setAnimationLoop(tick);
+  }
+  statistics() {
+    return {
+      drawCalls: this.renderer.info.render.calls,
+      triangles: this.renderer.info.render.triangles,
+      geometries: this.renderer.info.memory.geometries,
+      textures: this.renderer.info.memory.textures,
+      programs: this.renderer.info.programs?.length ?? 0,
+      pixelRatio: this.renderer.getPixelRatio(),
+    };
   }
   render(snapshot: SimulationSnapshot, state: ViewState, dt: number) {
     for (const vehicle of snapshot.vehicles)
@@ -179,6 +221,7 @@ export class SceneRenderer {
       textures = new Set<THREE.Texture>();
     this.scene.traverse((object) => {
       if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
+        if (object instanceof THREE.InstancedMesh) object.dispose();
         geometries.add(object.geometry);
         const mats = Array.isArray(object.material) ? object.material : [object.material];
         for (const mat of mats) {
@@ -189,8 +232,13 @@ export class SceneRenderer {
       }
     });
     geometries.forEach((g) => g.dispose());
+    textures.delete(this.vehicleEnvironment.texture);
     textures.forEach((t) => t.dispose());
     materials.forEach((m) => m.dispose());
+    if (!this.vehicleEnvironmentDisposed) {
+      this.vehicleEnvironment.dispose();
+      this.vehicleEnvironmentDisposed = true;
+    }
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
