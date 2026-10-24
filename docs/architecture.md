@@ -71,15 +71,21 @@ If no valid contact exists, the returned head stays exactly one pole length from
 
 `SceneRenderer` owns the WebGL scene, lighting, resize handling and raycast selection. `CameraRig` owns an orthographic camera with overview, follow and free navigation. Camera movement does not change simulation time or vehicle state.
 
-`createTrolleybus(id)` returns `group`, `update(snapshot, selected, elapsed)` and `dispose()`. Its chassis follows the sampled world position/yaw, wheels rotate from travelled distance and front wheels follow steering. The body separately pitches and rolls, while door leaves use the snapshot's opening fraction. Pole shafts and contact heads consume the solver's world-coordinate endpoints in a separate group. Static opaque meshes are merged by material to reduce draw calls.
+`createTrolleybus(id, environment?)` returns `group`, `update(snapshot, selected, elapsed)` and `dispose()`. Its chassis follows the sampled world position/yaw, wheels rotate from travelled distance and front wheels follow steering. The body separately pitches and rolls, while door leaves use the snapshot's opening fraction. Pole shafts and contact heads consume the solver's world-coordinate endpoints in a separate group. Retrieval ropes connect those moving poles to body-local drums. Static opaque meshes and explicitly mergeable atlas decals are batched by material and shadow flags.
 
 `bodyGeometry` builds extruded longitudinal profiles and faceted front surfaces. Both skirts have real wheel openings with suspension clearance, and passenger-side glazing and framing stop at each door aperture. The roof fairings leave the shared pole mounts exposed. `VehicleGeometry` also supplies axle positions and wheel radius; the world configuration derives its wheelbase from those same axle positions. Static batches separate indexed and non-indexed geometries before merging.
+
+`DOOR_LAYOUT` supplies per-door widths and centres, including a narrower rear door. The rear electrical compartment occupies `z = -6…-5.02`, leaving 0.98 m after that door. The 6 m wheelbase and door/arch clearances are verified against these shared dimensions.
+
+`vehicleTextures` generates one 1024 × 1024 atlas per fleet number; opaque surfaces, transparent markings, emissive lamp lenses and unlit displays share its texture with remapped UVs. Brake-lens emission follows the braking state. `vehicleEnvironment` captures one 128 px PMREM reflection map at scene construction, shared by the three vehicles and disposed with the renderer. On WebGL context loss the old target is released; restoration regenerates it and replaces material references. It is not a live reflection probe; there is no transmission pass or postprocessing chain. Flat glazing uses one transparent pass and does not cast opaque shadows over the cabin.
+
+City repetition uses instancing. `mergeStaticEnvironment` bakes remaining untextured static meshes into vertex-colour batches while preserving material shading and shadow flags. Textured surfaces, glass and instanced meshes remain separate. Scenery surface textures are 128 px and share materials; discarded source geometry/materials are released after batching. Scene cleanup disposes geometry, textures, materials, instance buffers and the fleet reflection target.
 
 Vehicles, buildings, trees, furniture, parked cars and canvas text textures are created procedurally. The supplied photographs and concept sheet inform the visual direction. No reference image is needed at runtime.
 
 `useUIStore` stores selected vehicle, camera/playback preferences, help/fleet visibility, diagnostics visibility and the latest published snapshot. Application adapters turn those intentions into engine or camera calls. The renderer does not mutate simulation snapshots.
 
-Contact debugging is gated by `import.meta.env.DEV` in the app adapter. `D` and the diagnostic view are development-only. `window.__trolleybus` exposes snapshot/world inspection only in development and is removed during cleanup.
+Contact debugging is gated by `import.meta.env.DEV` in the app adapter. `D` and the diagnostic view are development-only. `window.__trolleybus` exposes snapshot/world inspection and renderer statistics only in development and is removed during cleanup.
 
 ## Verification and extension points
 

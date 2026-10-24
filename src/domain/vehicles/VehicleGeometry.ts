@@ -9,5 +9,22 @@ export const POLE_MOUNT = {
 export const BODY_ROLL_PIVOT_HEIGHT = 0.8;
 
 export const FRONT_AXLE = 3.1;
-export const REAR_AXLE = -3.2;
+export const REAR_AXLE = -2.9;
 export const WHEEL_RADIUS = 0.56;
+export const WHEEL_ARCH_RADIUS = 0.69;
+export const WHEEL_ARCH_OUTER_RADIUS = 0.75;
+
+export interface DoorLayout {
+  readonly id: 'front' | 'middle' | 'rear';
+  readonly center: number;
+  readonly width: number;
+}
+
+/** The narrower rear opening leaves a full equipment bay aft of the passenger doors. */
+export const DOOR_LAYOUT = [
+  { id: 'front', center: 4.8, width: 1.44 },
+  { id: 'middle', center: 0, width: 1.44 },
+  { id: 'rear', center: -4.4, width: 1.24 },
+] as const satisfies readonly DoorLayout[];
+
+export const REAR_EQUIPMENT_BAY = { front: -5.02, rear: -6 } as const;

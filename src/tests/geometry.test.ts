@@ -4,9 +4,53 @@ import { createWorldDefinition } from '../data/world';
 import { selectActuatedBranch, selectRouteBranch } from '../domain/overhead/ContactSwitch';
 import { calculatePoleBase, solvePoleContact } from '../domain/overhead/PoleContactSolver';
 import type { Polarity } from '../domain/types';
-import { BODY_ROLL_PIVOT_HEIGHT, POLE_MOUNT } from '../domain/vehicles/VehicleGeometry';
+import {
+  BODY_ROLL_PIVOT_HEIGHT,
+  DOOR_LAYOUT,
+  FRONT_AXLE,
+  POLE_MOUNT,
+  REAR_AXLE,
+  REAR_EQUIPMENT_BAY,
+  WHEEL_ARCH_OUTER_RADIUS,
+} from '../domain/vehicles/VehicleGeometry';
 
 const world = createWorldDefinition();
+
+describe('twelve-metre trolleybus layout', () => {
+  it('keeps all three door openings clear of wheel arches with room for a body pillar', () => {
+    expect(DOOR_LAYOUT.map((door) => door.id)).toEqual(['front', 'middle', 'rear']);
+    for (const door of DOOR_LAYOUT) {
+      const rearEdge = door.center - door.width / 2;
+      const frontEdge = door.center + door.width / 2;
+      expect(rearEdge).toBeGreaterThan(-6);
+      // Keep the front entrance clear of the chamfered nose.
+      expect(frontEdge).toBeLessThan(5.62);
+      for (const axle of [FRONT_AXLE, REAR_AXLE]) {
+        const gap = Math.max(
+          rearEdge - (axle + WHEEL_ARCH_OUTER_RADIUS),
+          axle - WHEEL_ARCH_OUTER_RADIUS - frontEdge,
+        );
+        expect(gap, `${door.id} door must clear the axle at ${axle}m`).toBeGreaterThanOrEqual(0.1);
+      }
+    }
+  });
+
+  it('reserves a substantial enclosed equipment bay behind the rear passenger door', () => {
+    const rearDoor = DOOR_LAYOUT.find((door) => door.id === 'rear')!;
+    const bayLength = REAR_EQUIPMENT_BAY.front - REAR_EQUIPMENT_BAY.rear;
+    expect(REAR_EQUIPMENT_BAY.front).toBeCloseTo(rearDoor.center - rearDoor.width / 2, 8);
+    expect(REAR_EQUIPMENT_BAY.rear).toBe(-world.vehicles[0]!.length / 2);
+    expect(bayLength).toBeGreaterThanOrEqual(0.9);
+    expect(bayLength).toBeLessThanOrEqual(1.1);
+    expect(rearDoor.width).toBeGreaterThanOrEqual(1.2);
+  });
+
+  it('uses the same six-metre wheelbase for the model and driving controller', () => {
+    expect(FRONT_AXLE - REAR_AXLE).toBeCloseTo(6, 8);
+    for (const vehicle of world.vehicles)
+      expect(vehicle.wheelbase).toBeCloseTo(FRONT_AXLE - REAR_AXLE, 8);
+  });
+});
 
 describe('directed arc-length road graph', () => {
   it('wraps distance and joins every segment continuously', () => {
