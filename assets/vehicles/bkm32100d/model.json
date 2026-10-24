@@ -1,0 +1,31 @@
+{
+  "model": "AKSM / BKM 32100D",
+  "stage": "geometry-review",
+  "units": "metres",
+  "runtimeAxes": { "up": "+Y", "forward": "+Z", "doors": "-X" },
+  "length": 12.0,
+  "width": 2.55,
+  "bodyHeight": 3.12,
+  "suspensionPivotHeight": 0.8,
+  "frontAxle": 3.1,
+  "rearAxle": -2.9,
+  "wheelRadius": 0.49,
+  "wheelTrackHalf": 1.12,
+  "archRadius": 0.62,
+  "archOuterRadius": 0.67,
+  "poleMount": { "halfSpacing": 0.38, "height": 3.43, "longitudinal": -0.65 },
+  "doors": [
+    { "id": "front", "center": 4.8, "width": 1.44 },
+    { "id": "middle", "center": 0.0, "width": 1.44 },
+    { "id": "rear", "center": -4.4, "width": 1.24 }
+  ],
+  "rearEquipmentBay": { "front": -5.02, "rear": -6.0 },
+  "referenceFiles": [
+    "00013495.jpg",
+    "00024661.jpg",
+    "00097061.jpg",
+    "00098245.jpg",
+    "00100179.jpg",
+    "00108977.jpg"
+  ]
+}
