@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "stage": "geometry-review",
+  "model": "AKSM / BKM 32100D",
+  "units": "metres",
+  "runtimeAxes": {
+    "up": "+Y",
+    "forward": "+Z",
+    "doors": "-X"
+  },
+  "dimensions": {
+    "model": "AKSM / BKM 32100D",
+    "stage": "geometry-review",
+    "units": "metres",
+    "runtimeAxes": {
+      "up": "+Y",
+      "forward": "+Z",
+      "doors": "-X"
+    },
+    "length": 12.0,
+    "width": 2.55,
+    "bodyHeight": 3.12,
+    "suspensionPivotHeight": 0.8,
+    "frontAxle": 3.1,
+    "rearAxle": -2.9,
+    "wheelRadius": 0.49,
+    "wheelTrackHalf": 1.12,
+    "archRadius": 0.62,
+    "archOuterRadius": 0.67,
+    "poleMount": {
+      "halfSpacing": 0.38,
+      "height": 3.43,
+      "longitudinal": -0.65
+    },
+    "doors": [
+      {
+        "id": "front",
+        "center": 4.8,
+        "width": 1.44
+      },
+      {
+        "id": "middle",
+        "center": 0.0,
+        "width": 1.44
+      },
+      {
+        "id": "rear",
+        "center": -4.4,
+        "width": 1.24
+      }
+    ],
+    "rearEquipmentBay": {
+      "front": -5.02,
+      "rear": -6.0
+    },
+    "referenceFiles": [
+      "00013495.jpg",
+      "00024661.jpg",
+      "00097061.jpg",
+      "00098245.jpg",
+      "00100179.jpg",
+      "00108977.jpg"
+    ]
+  },
+  "pivots": {
+    "bkm32100d": [
+      0.0,
+      0.0,
+      -0.0
+    ],
+    "chassis": [
+      0.0,
+      0.0,
+      -0.0
+    ],
+    "body-suspension": [
+      0.0,
+      0.8,
+      -0.0
+    ],
+    "body-shell": [
+      0.0,
+      0.0,
+      -0.0
+    ],
+    "door-front-forward-pivot": [
+      -1.3,
+      0.4,
+      5.46
+    ],
+    "door-front-rearward-pivot": [
+      -1.3,
+      0.4,
+      4.1399999
+    ],
+    "door-middle-forward-pivot": [
+      -1.3,
+      0.4,
+      0.66
+    ],
+    "door-middle-rearward-pivot": [
+      -1.3,
+      0.4,
+      -0.66
+    ],
+    "door-rear-forward-pivot": [
+      -1.3,
+      0.4,
+      -3.8399999
+    ],
+    "door-rear-rearward-pivot": [
+      -1.3,
+      0.4,
+      -4.96
+    ],
+    "mirror-left-pivot": [
+      -1.16,
+      2.6700001,
+      5.5700002
+    ],
+    "mirror-right-pivot": [
+      1.16,
+      2.6700001,
+      5.5700002
+    ],
+    "wiper-left-pivot": [
+      -0.62,
+      1.4299999,
+      6.1149998
+    ],
+    "wiper-right-pivot": [
+      0.62,
+      1.4299999,
+      6.1149998
+    ],
+    "wheel-steer-front-left": [
+      -1.12,
+      0.49,
+      3.0999999
+    ],
+    "wheel-spin-front-left": [
+      -1.12,
+      0.49,
+      3.0999999
+    ],
+    "wheel-steer-front-right": [
+      1.12,
+      0.49,
+      3.0999999
+    ],
+    "wheel-spin-front-right": [
+      1.12,
+      0.49,
+      3.0999999
+    ],
+    "wheel-steer-rear-left": [
+      -1.12,
+      0.49,
+      -2.9000001
+    ],
+    "wheel-spin-rear-left": [
+      -1.12,
+      0.49,
+      -2.9000001
+    ],
+    "wheel-steer-rear-right": [
+      1.12,
+      0.49,
+      -2.9000001
+    ],
+    "wheel-spin-rear-right": [
+      1.12,
+      0.49,
+      -2.9000001
+    ],
+    "pole-left-aim": [
+      -0.38,
+      3.4300001,
+      -0.65
+    ],
+    "pole-left-shaft-lower": [
+      -0.38,
+      3.4300001,
+      -0.65
+    ],
+    "pole-left-shaft-upper": [
+      -0.3632001,
+      4.9811883,
+      -4.7332535
+    ],
+    "pole-left-contact-head": [
+      -0.35,
+      6.1999998,
+      -7.9415774
+    ],
+    "pole-left-retrieval-rope": [
+      -0.62,
+      1.13,
+      -6.1100001
+    ],
+    "pole-right-aim": [
+      0.38,
+      3.4300001,
+      -0.65
+    ],
+    "pole-right-shaft-lower": [
+      0.38,
+      3.4300001,
+      -0.65
+    ],
+    "pole-right-shaft-upper": [
+      0.3632001,
+      4.9811883,
+      -4.7332535
+    ],
+    "pole-right-contact-head": [
+      0.35,
+      6.1999998,
+      -7.9415774
+    ],
+    "pole-right-retrieval-rope": [
+      0.62,
+      1.13,
+      -6.1100001
+    ]
+  },
+  "textures": 0,
+  "movingParts": [
+    "bkm32100d",
+    "body-shell",
+    "body-suspension",
+    "chassis",
+    "door-front-forward-pivot",
+    "door-front-rearward-pivot",
+    "door-middle-forward-pivot",
+    "door-middle-rearward-pivot",
+    "door-rear-forward-pivot",
+    "door-rear-rearward-pivot",
+    "mirror-left-pivot",
+    "mirror-right-pivot",
+    "pole-left-aim",
+    "pole-left-contact-head",
+    "pole-left-retrieval-rope",
+    "pole-left-shaft-lower",
+    "pole-left-shaft-upper",
+    "pole-right-aim",
+    "pole-right-contact-head",
+    "pole-right-retrieval-rope",
+    "pole-right-shaft-lower",
+    "pole-right-shaft-upper",
+    "wheel-spin-front-left",
+    "wheel-spin-front-right",
+    "wheel-spin-rear-left",
+    "wheel-spin-rear-right",
+    "wheel-steer-front-left",
+    "wheel-steer-front-right",
+    "wheel-steer-rear-left",
+    "wheel-steer-rear-right",
+    "wiper-left-pivot",
+    "wiper-right-pivot"
+  ]
+}

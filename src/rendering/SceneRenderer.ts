@@ -17,6 +17,7 @@ export interface SceneCallbacks {
   follow(id: string): void;
   free(): void;
   contextLost(lost: boolean): void;
+  assetError(message: string): void;
 }
 
 export class SceneRenderer {
@@ -31,6 +32,7 @@ export class SceneRenderer {
   private cleanup: (() => void)[] = [];
   private vehicleEnvironment: THREE.WebGLRenderTarget;
   private vehicleEnvironmentDisposed = false;
+  private disposed = false;
 
   constructor(host: HTMLElement, world: WorldDefinition, callbacks: SceneCallbacks) {
     this.renderer = new THREE.WebGLRenderer({
@@ -84,6 +86,14 @@ export class SceneRenderer {
       this.buses.set(config.id, visual);
       this.scene.add(visual.group);
     }
+    void Promise.all([...this.buses.values()].map((visual) => visual.ready)).catch(
+      (error: unknown) => {
+        if (!this.disposed)
+          callbacks.assetError(
+            `The vehicle model could not be loaded. ${error instanceof Error ? error.message : ''}`,
+          );
+      },
+    );
     this.camera = new CameraRig(canvas);
     const resize = () => {
       const { width, height } = host.getBoundingClientRect();
@@ -149,22 +159,9 @@ export class SceneRenderer {
     const restored = () => {
       // Three registers its synchronous restoration listener in its constructor,
       // before this listener. Its GL state is ready when we regenerate the PMREM.
-      const previousEnvironment = this.vehicleEnvironment;
       const restoredEnvironment = createVehicleEnvironment(this.renderer);
-      const materials = new Set<THREE.Material>();
-      this.scene.traverse((object) => {
-        if (!(object instanceof THREE.Mesh || object instanceof THREE.Line)) return;
-        const objectMaterials = Array.isArray(object.material)
-          ? object.material
-          : [object.material];
-        objectMaterials.forEach((material) => materials.add(material));
-      });
-      for (const material of materials) {
-        if ('envMap' in material && material.envMap === previousEnvironment.texture) {
-          material.envMap = restoredEnvironment.texture;
-          material.needsUpdate = true;
-        }
-      }
+      // Also update pending GLB loads; they must not attach a stale target later.
+      for (const visual of this.buses.values()) visual.setEnvironment(restoredEnvironment.texture);
       this.vehicleEnvironment = restoredEnvironment;
       this.vehicleEnvironmentDisposed = false;
       callbacks.contextLost(false);
@@ -212,6 +209,7 @@ export class SceneRenderer {
     this.renderer.render(this.scene, this.camera.camera);
   }
   dispose() {
+    this.disposed = true;
     this.renderer.setAnimationLoop(null);
     this.resizeObserver.disconnect();
     this.cleanup.forEach((fn) => fn());

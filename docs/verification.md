@@ -2,7 +2,21 @@
 
 Checked locally on 24 October 2026 with Node 24.18, Vite 7.3.7, Three.js 0.186, React 19 and Vitest 4.1.12.
 
-## AKSM/BKM 32100D reference and PNG update
+## Blender vehicle pipeline — geometry review
+
+Blender 5.2.3 LTS generated the native `assets/vehicles/bkm32100d/source/bkm32100d.blend`, modular `bpy` source, packed reference photographs and three saved preview iterations. Every iteration includes front, passenger-side, rear and isometric PNG renders. Iteration `003` is the current geometry-review draft; detailed textures await approval.
+
+The shipping GLB contains 48,860 triangles, 58 mesh nodes, 90 total nodes, 14 shared review materials and **zero textures**. It is approximately 2.15 MB. glTF Transform optimization retains every node name; Khronos validation reports zero errors, warnings, infos or hints. Static joining happens only in an export copy, preserving individual native objects and non-destructive bevels. The pipeline also exports directly from an edited blend without regenerating its geometry.
+
+Four new tests parse the actual GLB and check simulation dimensions/hinges, pole endpoints under translated/yawed body roll and pitch, grounded wheels, independent fleet motion/materials, and disposal before load completion. Browser inspection verified the GLB in the existing city and opened all six door leaves. Across nine combined roll/pitch poses, roof-mount error was below `6e-10 m`; wheel-height error was below `1e-8 m`, consistent with GLB float32 serialization. An actual moving corner retained both pole contacts at 1.76° body roll. The isolated review frame submitted 109 draw calls including shadows.
+
+Two forced context-loss/restoration cycles retained the same resource counts (208 geometries, 16 textures) with no browser errors or warnings. A 180-frame follow sample at 1200 × 796, device scale 2 and capped renderer pixel ratio 1.7 averaged 16.64 ms/frame (approximately 60 fps), with a 20.9 ms 95th percentile. Its final frame submitted 263 draw calls including shadows. This is a short local Chromium sample, not a hardware or cross-browser guarantee.
+
+Both the generator pipeline and the edited-blend export pipeline completed successfully. Production preview served the GLB with HTTP 200, rendered the three-vehicle fleet without console errors/warnings, and omitted development hooks. Production build, ESLint/boundaries and all **34 tests** pass. Generated manifest JSON is excluded from source formatting checks; it is written by Blender.
+
+The domain, simulation, world/route and overhead-contact files are unchanged by this migration. Earlier verification sections below describe the superseded procedural vehicle and its historical measurements.
+
+## Earlier AKSM/BKM 32100D reference and PNG update
 
 The model now follows the supplied 32100D photos with the front equipment cover fitted: a closed blue cowl, tall side roof fairings, deeper black V-mask, tighter wave pattern and violet rear ribbons. Wheel diameter is reduced from 1.12 m to 0.98 m, with matching rims, tire profiles and arches. These are photo-guided modelling proportions, not a claim of factory drawing accuracy.
 

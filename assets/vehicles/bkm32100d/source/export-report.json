@@ -1,0 +1,17 @@
+{
+  "stage": "geometry-review",
+  "bytes": 2149892,
+  "nodes": 90,
+  "meshNodes": 58,
+  "triangles": 48860,
+  "materials": 14,
+  "textures": 0,
+  "validation": {
+    "numErrors": 0,
+    "numWarnings": 0,
+    "numInfos": 0,
+    "numHints": 0,
+    "messages": [],
+    "truncated": false
+  }
+}

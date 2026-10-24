@@ -21,6 +21,7 @@ export function bootstrap(host: HTMLElement) {
           ? 'The graphics context is resting. Waiting for your browser to restore it…'
           : null,
       }),
+    assetError: (message) => useUIStore.setState({ error: message }),
   });
   useUIStore.setState({ snapshot: engine.snapshot(), error: null });
   let previous = 0,

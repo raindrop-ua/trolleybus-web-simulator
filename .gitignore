@@ -5,3 +5,6 @@ artifacts/
 .playwright-mcp/
 .DS_Store
 .idea/
+__pycache__/
+*.pyc
+*.blend1
