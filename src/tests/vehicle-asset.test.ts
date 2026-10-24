@@ -16,10 +16,17 @@ import { createTrolleybus } from '../rendering/vehicles/Trolleybus';
 import { SimulationEngine } from '../simulation/SimulationEngine';
 
 let gltf: GLTF;
-let document: { images?: unknown[]; textures?: unknown[]; nodes: { name: string }[] };
+let document: { images?: { mimeType: string }[]; textures?: unknown[]; nodes: { name: string }[] };
 const world = createWorldDefinition();
 
 beforeAll(async () => {
+  // Decode metadata only in Node; browser QA below verifies actual PNG rendering.
+  vi.stubGlobal('self', globalThis);
+  vi.stubGlobal('createImageBitmap', async (blob: Blob) => {
+    const bytes = Buffer.from(await blob.arrayBuffer());
+    expect(bytes.toString('ascii', 1, 4)).toBe('PNG');
+    return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20), close() {} };
+  });
   const bytes = await readFile(
     new URL('../rendering/vehicles/assets/bkm32100d.glb', import.meta.url),
   );
@@ -30,12 +37,16 @@ beforeAll(async () => {
   );
   vi.spyOn(GLTFLoader.prototype, 'loadAsync').mockResolvedValue(gltf);
 });
-afterAll(() => vi.restoreAllMocks());
+afterAll(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 describe('Blender vehicle asset contract', () => {
-  it('exports a texture-free geometry review with the simulation dimensions and hinge positions', () => {
-    expect(document.images ?? []).toHaveLength(0);
-    expect(document.textures ?? []).toHaveLength(0);
+  it('exports embedded PNG materials with the simulation dimensions and hinge positions', () => {
+    expect(document.images?.length).toBeGreaterThanOrEqual(5);
+    expect(document.images?.every((image) => image.mimeType === 'image/png')).toBe(true);
+    expect(document.textures?.length).toBeGreaterThanOrEqual(5);
     expect(new Set(document.nodes.map((node) => node.name)).size).toBe(document.nodes.length);
     const scene = gltf.scene;
     expect(scene.getObjectByName('body-suspension')!.position.y).toBeCloseTo(
@@ -124,8 +135,16 @@ describe('Blender vehicle asset contract', () => {
     await Promise.all([a.ready, b.ready]);
     const snapshot = new SimulationEngine(world, 6).snapshot().vehicles[0];
     try {
-      a.update({ ...snapshot, doorOpen: 1, totalDistance: 2, steeringAngle: 0.2 }, false, 0);
-      b.update({ ...snapshot, doorOpen: 0, totalDistance: 0, steeringAngle: 0 }, false, 0);
+      a.update(
+        { ...snapshot, doorOpen: 1, totalDistance: 2, travelledDistance: 2, steeringAngle: 0.2 },
+        false,
+        0,
+      );
+      b.update(
+        { ...snapshot, doorOpen: 0, totalDistance: 0, travelledDistance: 0, steeringAngle: 0 },
+        false,
+        0,
+      );
       expect(a.group.getObjectByName('door-front-forward-pivot')!.rotation.y).toBeCloseTo(-1.42);
       expect(a.group.getObjectByName('wheel-spin-front-left')!.rotation.x).toBeCloseTo(
         2 / WHEEL_RADIUS,
@@ -149,5 +168,30 @@ describe('Blender vehicle asset contract', () => {
     await visual.ready;
     expect(visual.group.children).toHaveLength(0);
     visual.dispose();
+  });
+
+  it('switches visual LODs while retaining the same wheel, door and pole hierarchy', async () => {
+    const visual = createTrolleybus('lod');
+    await visual.ready;
+    try {
+      const hinge = visual.group.getObjectByName('door-rear-forward-pivot');
+      const counts: number[] = [];
+      for (const level of [1, 2] as const) {
+        visual.setDetail(level);
+        let triangles = 0;
+        visual.group.traverse((object) => {
+          if (!(object instanceof THREE.Mesh) || !object.userData.lod_level) return;
+          expect(object.visible).toBe(object.userData.lod_level === level);
+          if (object.visible)
+            triangles +=
+              (object.geometry.index?.count ?? object.geometry.attributes.position.count) / 3;
+        });
+        counts.push(triangles);
+        expect(visual.group.getObjectByName('door-rear-forward-pivot')).toBe(hinge);
+      }
+      expect(counts[1]).toBeLessThan(counts[0] * 0.65);
+    } finally {
+      visual.dispose();
+    }
   });
 });

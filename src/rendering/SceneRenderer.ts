@@ -33,6 +33,7 @@ export class SceneRenderer {
   private vehicleEnvironment: THREE.WebGLRenderTarget;
   private vehicleEnvironmentDisposed = false;
   private disposed = false;
+  private vehicleDetail: 1 | 2 = 1;
 
   constructor(host: HTMLElement, world: WorldDefinition, callbacks: SceneCallbacks) {
     this.renderer = new THREE.WebGLRenderer({
@@ -206,6 +207,15 @@ export class SceneRenderer {
       snapshot.vehicles.find((v) => v.id === state.selectedId),
       dt,
     );
+    // Orthographic city cameras need screen-size LODs, not world-distance thresholds.
+    const camera = this.camera.camera;
+    const pixels =
+      (12 / ((camera.top - camera.bottom) / camera.zoom)) * this.renderer.domElement.clientHeight;
+    const detail = pixels < 95 ? 2 : pixels > 120 ? 1 : this.vehicleDetail;
+    if (detail !== this.vehicleDetail) {
+      this.vehicleDetail = detail;
+      for (const visual of this.buses.values()) visual.setDetail(detail);
+    }
     this.renderer.render(this.scene, this.camera.camera);
   }
   dispose() {

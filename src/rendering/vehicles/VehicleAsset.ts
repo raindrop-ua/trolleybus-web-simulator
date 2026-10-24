@@ -8,14 +8,26 @@ let cached: Entry | undefined;
 function disposeTemplate(scene: THREE.Group) {
   const geometries = new Set<THREE.BufferGeometry>();
   const materials = new Set<THREE.Material>();
+  const textures = new Set<THREE.Texture>();
   scene.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
     geometries.add(object.geometry);
     const list = Array.isArray(object.material) ? object.material : [object.material];
-    list.forEach((material) => materials.add(material));
+    list.forEach((material) => {
+      materials.add(material);
+      for (const value of Object.values(material))
+        if (value instanceof THREE.Texture) textures.add(value);
+    });
   });
   geometries.forEach((geometry) => geometry.dispose());
   materials.forEach((material) => material.dispose());
+  const images = new Set<unknown>();
+  textures.forEach((texture) => {
+    texture.dispose();
+    images.add(texture.image);
+  });
+  for (const image of images)
+    if (image && typeof (image as ImageBitmap).close === 'function') (image as ImageBitmap).close();
 }
 
 /** Shared immutable GLB geometry; visuals own cloned motion nodes and materials. */

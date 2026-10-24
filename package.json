@@ -14,17 +14,21 @@
     "format:check": "prettier --check .",
     "vehicle:build": "node scripts/build-vehicle.mjs",
     "vehicle:export": "node scripts/build-vehicle.mjs --from-blend",
-    "vehicle:optimize": "node scripts/optimize-vehicle.mjs"
+    "vehicle:optimize": "node scripts/optimize-vehicle.mjs",
+    "vehicle:review": "node scripts/create-vehicle-review.mjs",
+    "vehicle:textures": "node scripts/create-vehicle-textures.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "serve": "14.2.6",
     "three": "^0.186.0",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
     "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
     "@gltf-transform/functions": "^4.5.1",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",

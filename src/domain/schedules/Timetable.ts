@@ -39,7 +39,9 @@ export class Timetable {
         },
         dt,
       );
-      position += integrateVehicleDynamics(state, command, vehicle, awareness.curvature, dt);
+      position +=
+        integrateVehicleDynamics(state, command, vehicle, awareness.curvature, dt) /
+        (this.road.sample(position).distanceScale ?? 1);
       elapsed += dt;
     }
     if (elapsed >= 3600)

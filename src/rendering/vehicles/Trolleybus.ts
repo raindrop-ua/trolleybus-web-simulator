@@ -7,6 +7,7 @@ export interface TrolleybusVisual {
   group: THREE.Group;
   ready: Promise<void>;
   setEnvironment(texture: THREE.Texture): void;
+  setDetail(level: 1 | 2): void;
   update(snapshot: VehicleSnapshot, selected: boolean, elapsed: number): void;
   dispose(): void;
 }
@@ -28,6 +29,9 @@ export function createTrolleybus(id: string, environment?: THREE.Texture): Troll
   group.name = `trolleybus-${id}`;
   const lease = acquireVehicleAsset();
   const materials = new Set<THREE.Material>();
+  const ownedTextures = new Set<THREE.Texture>();
+  const lodMeshes: THREE.Mesh[] = [];
+  let detailLevel: 1 | 2 = 1;
   let currentEnvironment = environment;
   let disposed = false;
   let model: THREE.Group | undefined;
@@ -94,7 +98,7 @@ export function createTrolleybus(id: string, environment?: THREE.Texture): Troll
     body.updateWorldMatrix(true, false);
     for (const wheel of wheels) {
       wheel.steer.rotation.y = wheel.front ? snapshot.steeringAngle : 0;
-      wheel.spin.rotation.x = snapshot.totalDistance / WHEEL_RADIUS;
+      wheel.spin.rotation.x = (snapshot.travelledDistance ?? snapshot.totalDistance) / WHEEL_RADIUS;
     }
     for (const door of doors) door.pivot.rotation.y = door.direction * snapshot.doorOpen * 1.42;
     selection.visible = selected;
@@ -108,8 +112,25 @@ export function createTrolleybus(id: string, environment?: THREE.Texture): Troll
     if (disposed) return;
     model = source.clone(true);
     const clones = new Map<THREE.Material, THREE.Material>();
+    let numberTexture: THREE.CanvasTexture | undefined;
+    if (typeof document !== 'undefined') {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 128;
+      const context = canvas.getContext('2d')!;
+      context.fillStyle = '#f0f4ed';
+      context.font = '87px Arial';
+      context.textAlign = 'center';
+      context.fillText(id, 128, 92, 252);
+      numberTexture = new THREE.CanvasTexture(canvas);
+      numberTexture.colorSpace = THREE.SRGBColorSpace;
+      numberTexture.flipY = false;
+      ownedTextures.add(numberTexture);
+    }
     model.traverse((object) => {
       if (!(object instanceof THREE.Mesh)) return;
+      lodMeshes.push(object);
+      object.visible = object.userData.lod_level === detailLevel;
       const cloneMaterial = (original: THREE.Material) => {
         let material = clones.get(original);
         if (!material) {
@@ -120,6 +141,8 @@ export function createTrolleybus(id: string, environment?: THREE.Texture): Troll
             material.envMap = currentEnvironment ?? null;
             material.envMapIntensity = 0.35;
             if (material.name === 'review-brake-lamp') brakes.push(material);
+            if (material.name === 'vehicle-fleet-number' && numberTexture)
+              material.map = numberTexture;
           }
           if (material.transparent) {
             material.depthWrite = false;
@@ -166,8 +189,10 @@ export function createTrolleybus(id: string, environment?: THREE.Texture): Troll
           object.material instanceof THREE.MeshStandardMaterial &&
           object.material.name === 'review-contact-status'
         ) {
-          status = object.material.clone();
-          materials.add(status);
+          if (!status) {
+            status = object.material.clone();
+            materials.add(status);
+          }
           object.material = status;
         }
       });
@@ -190,6 +215,10 @@ export function createTrolleybus(id: string, environment?: THREE.Texture): Troll
     group,
     ready,
     update,
+    setDetail(level) {
+      detailLevel = level;
+      for (const mesh of lodMeshes) mesh.visible = mesh.userData.lod_level === level;
+    },
     setEnvironment(texture) {
       currentEnvironment = texture;
       for (const material of materials) {
@@ -204,6 +233,7 @@ export function createTrolleybus(id: string, environment?: THREE.Texture): Troll
       disposed = true;
       group.removeFromParent();
       materials.forEach((material) => material.dispose());
+      ownedTextures.forEach((texture) => texture.dispose());
       selection.geometry.dispose();
       selectionMaterial.dispose();
       lease.release();

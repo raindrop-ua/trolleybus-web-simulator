@@ -25,6 +25,26 @@ npm run format:check   # Check source formatting
 npm run format        # Apply Prettier formatting
 ```
 
+## Docker deployment
+
+The multi-stage image builds the app with Node.js 24 and npm, then serves `dist/`
+with the Node.js `serve` static server as an unprivileged user on port **4200**
+(`PORT` can override it). It includes an HTTP healthcheck.
+
+```sh
+docker build -t trolleybus .
+docker run -d --name trolleybus --restart unless-stopped -p 127.0.0.1:4200:4200 trolleybus
+```
+
+Open `http://localhost:4200` to check the container. In **Dokploy**, select the
+**Dockerfile** build type with `Dockerfile` at the repository root. Add the domain
+`trolleybuses.antonsizov.rocks` with path `/` and container port **4200**, and enable
+HTTPS. Point the domain's DNS record at your Dokploy server. Traefik handles
+routing and TLS; Dokploy does not need a published host port for this app.
+
+The app is hosted at the domain root, so Vite's default base path `/` applies.
+The container serves HTTP; DNS and HTTPS are configured outside the image.
+
 ## Controls
 
 | Input                     | Action                                                    |
@@ -46,8 +66,9 @@ Dragging the camera leaves follow mode. Pausing stops simulated time while camer
 ## What's in this version
 
 - Three 12 m trolleybuses, fleet numbers **2001**, **2002** and **2003**, with animated wheels, steering, body suspension and three pairs of opening doors.
-- A Blender-authored AKSM/BKM **32100D** geometry-review draft, exported as GLB: closed front cowl, high roof-equipment fairings, panoramic windshield, V-shaped mask, three door openings and rear equipment bay.
-- Plain review materials with **zero vehicle textures** while geometry approval is pending. All vehicle meshes come from Blender; the Three.js adapter only loads the asset and drives named motion pivots. The city uses instanced façade, tree, car and street details.
+- A Blender-authored AKSM/BKM **32100D** with continuous body/roof transitions, panoramic windshield, closed cowl, detailed lamps, cabin handrails, service panels and rear equipment bay.
+- Stylized PNG livery, emissive route displays and shared PBR atlases. LOD1/2 share one rig and texture set; the editable LOD0 stays in Blender. All vehicle meshes and UVs come from Blender. The city uses instanced façade, tree, car and street details.
+- Smooth curb approaches: vehicles move 2.2 m toward each stop, board at rest and return to the lane. Wires follow their original path; fixed-length poles reach them from the actual offset body pose.
 - Gentle outward body lean in corners, limited to **2.5°**, with a damped return to level. Wheels stay grounded and pole contact follows the sprung roof.
 - Five named places served in both directions: Station, Central Square, University, Riverside and Park. These are **ten directional stop visits per round trip**.
 - A directed road circuit made from arc-length sampled cubic Bézier segments, including terminal loops and slower curved sections.
@@ -61,12 +82,15 @@ The route is a deliberately compressed **approximately 756 m round trip**, rathe
 Vehicle source: [native Blender project](assets/vehicles/bkm32100d/source/bkm32100d.blend). The modular `bpy` generator is under `scripts/blender/`; dimensions live in `assets/vehicles/bkm32100d/model.json`. Supplied reference photographs are packed into the native project and excluded from the GLB. Scenery remains procedural.
 
 ```sh
-npm run vehicle:build -- --iteration 004   # Regenerate from bpy modules; save blend + 4 previews + optimized GLB
-npm run vehicle:export -- --iteration 005  # Export manually edited blend; preserve geometry; render 4 views
-npm run vehicle:optimize                   # Re-optimize/validate the latest raw GLB only
+npm run vehicle:build -- --iteration 010   # Regenerate from bpy modules; save blend + 9 material views + optimized GLB
+npm run vehicle:export -- --iteration 010  # Export manually edited blend; preserve geometry; render 9 views
+npm run vehicle:optimize                   # Re-optimize/validate the latest raw GLBs only
+npm run vehicle:textures                   # Rebuild authored PNG livery/labels
+npm run vehicle:review -- --iteration 009 --materials # Current material comparison
+npm run vehicle:review -- --iteration 005  # Create reference/comparison boards from a saved iteration
 ```
 
-Use Blender 5.2+ (`BLENDER_BIN` can point to its executable). Native axes are Z-up / -Y-forward; exported axes are Y-up / +Z-forward. Each iteration saves front, side, rear and isometric renders. See the [asset workflow and pivot contract](assets/vehicles/bkm32100d/README.md) before editing or exporting.
+Use Blender 5.2+ (`BLENDER_BIN` can point to its executable). Native axes are Z-up / -Y-forward; exported axes are Y-up / +Z-forward. Current iteration `009` includes front/rear, both sides, isometric, two three-quarter and two close-up material renders. The [material comparison](assets/vehicles/bkm32100d/review/gates-b-e/comparison.html), [Gate A history](assets/vehicles/bkm32100d/review/gate-a/comparison.html) and [reference analysis](assets/vehicles/bkm32100d/review/gate-a/reference-analysis.md) document the pass. The supplied sheets contain contradictory doors/roof hardware; primary photographs take priority. See the [asset workflow and pivot contract](assets/vehicles/bkm32100d/README.md) before editing or exporting.
 
 ## Configuration and structure
 
@@ -95,7 +119,7 @@ Tests cover route continuity and arc-length sampling, paired contact geometry ac
 
 ## Current limits and next steps
 
-Movement is constrained to the road's centreline. Steering and suspension are modelled, but the vehicle is not a free-driving rigid body. Parked cars and people are scenery; there is no general traffic AI, collision solver, electrical power network, manual driving or mobile control scheme. Passenger counts change at stops without a pedestrian boarding simulation.
+Movement follows a route with smooth curb offsets at stops. Steering and suspension are modelled, but the vehicle is not a free-driving rigid body. Parked cars and people are scenery; there is no general traffic AI, collision solver, electrical power network, manual driving or mobile control scheme. Passenger counts change at stops without a pedestrian boarding simulation.
 
 The depot turnout has real branch geometry and explicit route/current-actuation helpers. The v0.1 autonomous service stays on its scheduled main circuit; it does not dynamically dispatch vehicles onto the depot branch. Wire geometry is level at 6.2 m, without sag or pole flex. Contact failure records a diagnostic and brakes the affected vehicle; automatic rewiring is not implemented.
 

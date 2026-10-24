@@ -1,6 +1,7 @@
 {
   "model": "AKSM / BKM 32100D",
-  "stage": "geometry-review",
+  "stage": "gates-b-e-stylized-production",
+  "reviewGate": "B-E",
   "units": "metres",
   "runtimeAxes": { "up": "+Y", "forward": "+Z", "doors": "-X" },
   "length": 12.0,
@@ -26,6 +27,8 @@
     "00097061.jpg",
     "00098245.jpg",
     "00100179.jpg",
-    "00108977.jpg"
+    "00108977.jpg",
+    "design-sheet-1.png",
+    "design-sheet-2.png"
   ]
 }

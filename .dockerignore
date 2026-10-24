@@ -1,0 +1,14 @@
+.git
+.idea
+.playwright-mcp
+node_modules
+dist
+artifacts
+assets
+docs
+scripts
+*.tsbuildinfo
+*.log
+.DS_Store
+.env
+.env.*

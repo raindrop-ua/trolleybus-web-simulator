@@ -2,7 +2,44 @@
 
 Checked locally on 24 October 2026 with Node 24.18, Vite 7.3.7, Three.js 0.186, React 19 and Vitest 4.1.12.
 
-## Blender vehicle pipeline — geometry review
+## Gates B–E and curb approaches — iteration 009
+
+The current editable Blender master and gameplay asset are iteration `009`. Nine full-resolution material renders, source comparisons, PNGs and standalone LOD variants are saved with the asset. Iterations `006–008` record fixes to lamp/display/number intersections, tangent export and rear graphic proportions; `009` removes overlapping side labels and exterior lettering on internal body faces.
+
+Gate B adds lamp internals and transparent covers, emissive display faces, side markers, service seams/handles, cabin rails/grips, wheel fasteners, rear ventilation and roof/pole hardware. Gate C uses five UV-mapped embedded PNGs: a 2048² livery/signage atlas, three 1024² surface/PBR maps and a 256 × 128 master number. Generated swatches provide restrained surface variation; authored graphics preserve readable text and the photographic wave/violet livery. The master uses 2004; fleet instances keep their own numbers. Source geometry remains in modular `bpy` modules and the native `.blend`.
+
+| Export                        |     Triangles |                Bytes |
+| ----------------------------- | ------------: | -------------------: |
+| LOD0 presentation master      |        68,884 |            8,488,788 |
+| Gameplay LOD1                 | 48,710 active |        bundled below |
+| Distant LOD2                  | 22,963 active | 5,181,528 standalone |
+| Shared LOD1/2 gameplay bundle | 71,673 stored |            7,780,416 |
+
+The gameplay bundle has 158 nodes, 126 mesh nodes and 15 materials. It shares one moving hierarchy and one texture set between LODs. Five embedded PNGs estimate 37.5 MiB RGBA allocation including mipmaps, shared across the fleet; each instance adds a small number canvas. All three exports report **zero Khronos errors, warnings, infos or hints**. Optimization preserves node names, UVs and emissive extensions. Tangents are explicit where normal maps need them.
+
+Gate D checks retain independent wheel steering/spin, door hinges, mirrors, wipers, suspension and externally driven pole nodes. Across nine translated/yawed combined roll/pitch poses, pole-base agreement stays below `6e-10 m` and wheel-height error below `1e-8 m`. Browser inspection covers front/rear/driver side, all six door leaves and a 1.74° simulated corner with connected poles. The isolated LOD1 frame submits 119 draw calls including shadows; the LOD2 corner submits 115 and roughly half the vehicle triangles.
+
+The vehicle-only `StopApproachPath` moves 2.2 m toward the platform, stays flat during boarding and returns to the lane. Actual position/yaw/curvature drive steering, suspension and pole bases; wires retain their original geometry. Wheel travel and timetable baselines account for the longer driving path. Tests check continuity, berth offset, wheel-to-curb and body-to-furniture clearance. The three-round-trip fleet run completes in 1,207.65 simulated seconds with no contact failures, body overlaps or moving/open-door frames. Maximum pole-length error is `6.41e-7 m`, wire error zero, head motion 0.141 m/tick and stop miss 0.136 m. Every vehicle visits every directional stop at least three times.
+
+Gate E browser checks load the final production GLB with HTTP 200 and the expected 7,780,416 bytes. The production fleet/follow view renders with no console errors/warnings and omits the development hook. A 180-frame follow sample at 1440 × 900, renderer pixel ratio 1, averages 16.67 ms/frame (approximately 60 fps), with a 17.7 ms 95th percentile. The sampled frame submits 279 draw calls including shadows. This is a short local Chromium sample, not a hardware or cross-browser guarantee.
+
+Two context-loss/restoration cycles after warming overview/follow LODs retain 248 GPU geometries and 23 textures, clear the error UI and render without console errors/warnings. A cold restored context initially holds fewer resources because Three.js uploads only visible meshes/textures; comparisons therefore warm the same camera/LOD states on both sides. Source contact-network/wire geometry is unchanged. Production build, lint/boundaries, formatting and the complete 38-test suite are checked for this pass.
+
+Review evidence is under `assets/vehicles/bkm32100d/review/gates-b-e/`. Browser captures include `artifacts/gates-009-{city,production,restored}.png`, `artifacts/gates-008-{front,rear,driver,doors,lod2-corner}.png` (same geometry, before the internal UV cleanup), and `artifacts/stop-station-{dwell,departure}.png`. Factory cover radii, hidden mechanisms and municipal graphics remain photo-guided/simplified; completion of these checks is not a claim of manufacturer or AAA certification.
+
+## Gate A silhouette pass — iteration 005
+
+Blender 5.2.3 LTS produced the current native project, optimized GLB and nine full-resolution neutral clay renders. Iteration `004` records the initial body/roof surface pass; `005` fixes lamp housing intersections. The reference analysis and annotated comparison sheets live under `assets/vehicles/bkm32100d/review/gate-a/`. The source includes six primary photographs and two supplied overview sheets; contradictory mirrored doors and duplicated pole mechanisms in those sheets were not transferred.
+
+The asset now uses a shared body envelope, swept front surfaces and panoramic glazing, a continuous rolled roof and closed tapered equipment housings. This pass preserves the existing axle, door, suspension and pole coordinates. No simulation, domain, world/route or contact-network source files changed. Detailed textures and later production gates remain deferred; visual approval of Gate A is pending.
+
+The shipping GLB is **2,031,240 bytes**, with **51,100 triangles**, 58 mesh nodes, 90 total nodes, 14 materials and **zero textures**. Khronos validation reports zero errors, warnings, infos or hints. Production build, ESLint/boundaries and all **34 tests** pass, including the actual-GLB contract tests.
+
+Chromium inspection covered the front, all open doors, a real simulated corner and the existing city follow camera. Across nine combined roll/pitch poses, pole-base agreement remained below `6e-10 m` and wheel-height error below `1e-8 m`. The corner snapshot retained both contacts at 1.76° body roll. The isolated vehicle submitted 109 draw calls including shadows. No browser errors or warnings were recorded.
+
+A 180-frame city follow sample at a 1440 × 900 viewport and renderer pixel ratio 1.7 averaged 16.66 ms/frame (approximately 60 fps), with a 17.4 ms 95th percentile. Its final frame submitted 265 draw calls including shadows. This is a short local Chromium sample, not a hardware or cross-browser guarantee. Screenshots: `artifacts/gate-a-005-{front,doors,corner,city}.png`.
+
+## Earlier Blender vehicle pipeline — geometry review
 
 Blender 5.2.3 LTS generated the native `assets/vehicles/bkm32100d/source/bkm32100d.blend`, modular `bpy` source, packed reference photographs and three saved preview iterations. Every iteration includes front, passenger-side, rear and isometric PNG renders. Iteration `003` is the current geometry-review draft; detailed textures await approval.
 
