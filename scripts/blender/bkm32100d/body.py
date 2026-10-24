@@ -30,6 +30,13 @@ def build_body(cfg, mats, parent, coll):
                          cfg['wheelRadius'] + math.sin(i * math.pi / 8) * inner) for i in range(9)]
             outline.append((axle - inner, .35))
             profile(f'wheel-arch-{side}-{axle_id}', outline, .055, side * 1.28, trim, parent, coll, .006)
+            # Dark inner tubs prevent a bright sight-line through the opposite wheel arch.
+            vertices, faces = [], []
+            for x in (side*.78, side*1.26):
+                vertices += [(x, cfg['wheelRadius']+math.sin(i*math.pi/16)*inner,
+                              axle+math.cos(i*math.pi/16)*inner) for i in range(17)]
+            for i in range(16): faces.append((i,i+1,i+18,i+17))
+            mesh(f'wheel-well-tub-{side}-{axle_id}',vertices,faces,trim,parent,coll)
         box(f'window-header-{side}', (.075, .12, 11.36), (side * 1.245, 2.745, -.07), trim, parent, coll)
         # Fixed panes end at each door opening and at the enclosed rear equipment bay.
         mullions = [-5.02, -3.78, -2.1, -.77, .77, 2.35, 4.08, 5.57]
@@ -56,7 +63,7 @@ def build_body(cfg, mats, parent, coll):
         box(f'rear-side-vent-panel-{side}', (.045, 1.23, .69), (side * 1.265, 2.06, -5.43), trim, parent, coll)
         for row in range(10):
             box(f'rear-side-louver-{side}-{row}', (.024, .028, .58), (side * 1.294, 1.55 + row * .105, -5.43),
-                mats['metal'], parent, coll, .004)
+                mats['trim'], parent, coll, .004)
     build_front(cfg, mats, parent, coll)
     build_rear_cap(mats, parent, coll)
     build_rear(mats, parent, coll)
@@ -64,15 +71,15 @@ def build_body(cfg, mats, parent, coll):
 
 
 def build_rear(mats, parent, coll):
-    box('rear-upper-black-service-mask', (2.23, 1.34, .04), (0, 2.10, -6.025), mats['trim'], parent, coll, .05)
+    box('rear-upper-black-service-mask', (2.23, 1.10, .04), (0, 2.20, -6.025), mats['trim'], parent, coll, .05)
     box('rear-centre-service-cover', (.53, 1.73, .09), (0, 1.70, -6.075), mats['trim'], parent, coll, .025)
-    box('rear-destination-recess', (.44, .34, .025), (.66, 2.45, -6.054), mats['trim'], parent, coll, .045)
+    box('rear-destination-recess', (.44, .34, .025), (-.66, 2.45, -6.054), mats['trim'], parent, coll, .045)
     for side in (-1, 1):
         rod(f'rear-ladder-rail-{side}', (side * .28, .85, -6.16), (side * .28, 3.19, -6.16),
             .018, mats['metal'], parent, coll)
         for row in range(5):
             rod(f'rear-radiator-slat-{side}-{row}', (side * .45, 1.86 + row * .09, -6.063),
-                (side * .96, 2.03 + row * .09, -6.063), .012, mats['metal'], parent, coll)
+                (side * .96, 2.03 + row * .09, -6.063), .012, mats['trim'], parent, coll)
         for index in range(3):
             from .geometry import cylinder
             cylinder(f'rear-lamp-{side}-{index}', .065, .028, (side * 1.01, .76 + index * .175, -6.055),

@@ -1,53 +1,69 @@
-# BKM / AKSM 32100D — Gate A silhouette review
+# BKM / AKSM 32100D — stylized Blender asset
 
-This is an editable Blender source asset based on the supplied photographs. Geometry approval is pending. Materials only distinguish paint, glass, rubber and metal. No detailed textures, livery graphics or baked shading are included in the shipping GLB.
+This editable Blender source follows the supplied photographs, with Gate A clay history and a Gates B–E detail/material/runtime pass. The master carries fleet number 2004. Runtime instances replace its small number texture with their own fleet ID. Materials are stylized and lighting is dynamic; factory-drawing or AAA production accuracy is not claimed.
 
 ## Files
 
-- `source/bkm32100d.blend`: native project with modular objects, named pivots, packed photographs and review cameras.
-- `model.json`: authoring dimensions and mechanical layout. Values are photo-guided modelling proportions; they are not a factory blueprint.
-- `references/`: six primary photographs and two supporting design sheets, all packed into the blend. Real photographs take priority where the sheets contradict them.
-- `previews/005`: current full-resolution neutral clay renders. Nine views cover front, rear, both sides, isometric, front/rear three-quarter, front detail and roof detail. Earlier directories preserve iteration history.
-- `review/gate-a/reference-analysis.md`: source priority, geometry checklist and uncertain features.
-- `review/gate-a/reference-board.{html,png}` and `comparison.{html,png}`: annotated source board and photo/clay comparison.
-- `source/bkm32100d.raw.glb`: unoptimized Blender export.
-- `source/manifest.json`: exported world-space pivot positions and authoring configuration.
-- `source/export-report.json`: optimized GLB size, geometry counts and Khronos validation results.
-- `../../../src/rendering/vehicles/assets/bkm32100d.glb`: shipping asset (path relative to repository root is `src/rendering/vehicles/assets/bkm32100d.glb`).
+- `source/bkm32100d.blend`: editable LOD0 master, modular objects, named pivots, packed PNGs/references and nine review cameras.
+- `model.json`: provisional photo-guided dimensions and the mechanical integration contract.
+- `references/`: six primary photographs and two supporting design sheets. Real photos take priority over contradictory sheet details.
+- `previews/009`: current nine material renders: front/rear, both sides, elevated isometric, front/rear three-quarter and front/roof close-ups.
+- `previews/005`: Gate A clay views. Iterations `006–008` preserve material/detail corrections.
+- `review/gate-a/`: annotated sources and clay comparisons.
+- `review/gates-b-e/`: current comparisons and quality-gate evidence.
+- `textures/`: generated swatch source, editable SVG livery sources and PNG base-color/normal/ORM maps.
+- `source/*.raw.glb`: unoptimized export copies.
+- `source/manifest.json`: axes, moving pivots, pole metadata and authoring configuration.
+- `source/export-report.json`: exact current counts, image budgets and Khronos validation results for all exports.
+- `exports/bkm32100d-lod0.glb`, `exports/bkm32100d-lod2.glb`: standalone presentation/distant exports.
+- Shipping asset: `src/rendering/vehicles/assets/bkm32100d.glb` from the repository root. It shares one moving hierarchy and texture set across LOD1/2 meshes.
 
 ## Generate and export
 
-Run from the repository root with Blender 5.2+ and Node installed:
+From the repository root with Node and Blender 5.2+:
 
 ```sh
-npm run vehicle:build -- --iteration 006
+npm run vehicle:textures                      # Rebuild readable PNG livery/labels
+npm run vehicle:build -- --iteration 010       # Generate native master, PBR maps, LOD exports and 9 material renders
+npm run vehicle:review -- --iteration 009 --materials
 ```
 
-The command runs `scripts/blender/generate_trolleybus.py` in background Blender, builds the native project, saves all nine clay preview renders, exports a temporary copy, batches static meshes by parent/material, then runs glTF Transform deduplication/pruning and the Khronos validator. Clay overrides are restored after rendering; the native project and game retain simple blue/black material IDs. Named motion nodes are never flattened. Optimization fails if node names change, textures are introduced, or validation reports errors/warnings. No compression decoder is required by the current GLB.
+`BLENDER_BIN` overrides Blender's location; `CHROME_BIN` overrides Chrome/Chromium for graphic/comparison PNGs. The generated swatch source is checked in; rebuilding does not call an image-generation API. `materials.py` processes the normalized swatches into restrained normal/ORM maps. The SVG graphic sources preserve exact text instead of relying on generated lettering.
 
-Set `BLENDER_BIN` when Blender is not in a standard macOS or Linux location. `--quick` makes lower-resolution preview renders for draft work. Give every major iteration a new ID; the preview directories preserve visual history. `--skip-renders` is reserved for generator maintenance, not major geometry revisions.
+Use `--quick` for draft previews and a new iteration ID for every major revision. `--skip-renders` is reserved for generator maintenance. Source references and studio objects never enter the GLB. The PNG comparison script only crops/layouts source photos; it does not retouch them or claim exact orthographic alignment.
 
-To edit directly in Blender, open `source/bkm32100d.blend`, edit the objects, save, then run:
+To export manual Blender edits without rebuilding geometry:
 
 ```sh
-npm run vehicle:export -- --iteration 006
+npm run vehicle:export -- --iteration 010
 ```
 
-This opens the existing blend and exports it **without regenerating geometry**. It renders all nine views and updates the GLB and validation report. Re-running `vehicle:build` intentionally replaces manual edits with generated geometry.
+This exports all LOD variants and saves nine material previews. `vehicle:build` intentionally regenerates geometry and replaces manual modelling edits. `vehicle:optimize` only reprocesses existing raw exports.
 
-Generate the comparison sheets from any saved preview iteration:
+## Export and LOD strategy
 
-```sh
-npm run vehicle:review -- --iteration 005
-```
+The native 68,884-triangle master stays editable. Temporary copies apply bevels, reduce hardware and batch meshes by parent/material/LOD. LOD1 is 48,710 triangles; LOD2 is 22,963 triangles, omitting tiny cabin/fastener/spring details while retaining silhouette, windows, doors and contact rig. Static joining and simplification never alter native objects.
 
-This layout-only script uses Chrome/Chromium (`CHROME_BIN` may override its location). It crops source images without retouching them, uses temporary browser profiles and does not alter the model. Comparison crops emphasize the body; the original preview files retain the full poles. Gate A visual approval remains pending; later detail, livery and LOD gates are outside this pass.
+The runtime bundle contains both LODs and one shared moving hierarchy. The orthographic camera chooses detail by projected size with 95/120 px hysteresis. Door/steering/spin/pole pivots remain stable while visibility switches. Standalone exports are also provided for inspection/reuse.
 
-## Modules and collections
+Export copies are explicitly triangulated and supply tangents for normal maps. glTF Transform preserves all names and Khronos material extensions, deduplicates/prunes and removes unused tangents. Khronos errors/warnings, missing UVs and image dimensions above 2K fail the pipeline. The current GLB uses no compression decoder.
 
-`geometry.py` supplies `bpy` primitives; `surfaces.py` owns the shared body envelope, swept front fascia/windshield/brow, rolled roof and rounded rear cap; `body.py` assembles panels and glazing; `roof.py` builds the closed cowl and tapered equipment housings from longitudinal control sections; `running_gear.py` builds wheels, doors, poles and interior blockout; `preview.py` owns the studio/cameras; `export.py` owns a temporary export copy. The native source keeps individual objects and non-destructive bevels. Static joining happens only in that export copy.
+## PNG materials
 
-Native collections separate rig, body/glazing, roof, wheels, doors, poles and interior. Collection `90_REFERENCE_PHOTOS__NOT_EXPORTED` contains packed photo empties; enable its viewport visibility to inspect them. Collection `99_REVIEW_STUDIO__NOT_EXPORTED` contains ground, lights and nine cameras. Neither collection is exported. `START_HERE.md` is embedded in the blend.
+- `livery-basecolor.png` (2048²): blue paint, white wave, violet rear accents, simplified municipal/accessibility graphics and emissive route displays.
+- `surfaces-basecolor.png` (1024²): normalized generated upholstery, rubber and alloy swatches.
+- `surfaces-normal.png` / `surfaces-orm.png` (1024²): subtle grain, roughness and metallic response. AO is neutral; directional shadows are not baked into the body.
+- `fleet-number-2004.png` (256 × 128): master fleet label. The game substitutes one small transparent canvas per vehicle ID.
+
+Five PNGs are embedded. Estimated RGBA texture allocation including mipmaps is 37.5 MiB for the shared set, plus 0.17 MiB per fleet label. All other images and geometry are shared across vehicles. The adapter clones materials, owns per-instance number textures and releases embedded textures/image bitmaps with the final shared lease.
+
+Paint has controlled gloss and fine color variation; glass has moderate transparency/reflection and actual cabin geometry behind it. Major shapes, lamp housings, recesses and panel seams are geometry. Printed graphics and micrograin use UV-mapped images. Internal body faces use plain paint, so exterior lettering does not appear mirrored inside the cabin.
+
+## Authoring modules
+
+`geometry.py` provides primitives; `surfaces.py` owns the continuous body/front/roof envelope; `body.py` assembles glazing/panels; `roof.py` owns closed equipment housings; `running_gear.py` owns wheel/door/pole/cabin assemblies; `details.py` adds lamp internals, markers, service details, grips and springs; `materials.py` owns UVs and PNG materials; `preview.py` owns studio/cameras; `export.py` owns temporary LOD copies.
+
+Collections separate rig, body, roof, wheels, doors, poles and cabin. `90_REFERENCE_PHOTOS__NOT_EXPORTED` packs the eight source images. `99_REVIEW_STUDIO__NOT_EXPORTED` contains the studio and nine cameras. `START_HERE.md` is embedded in the blend.
 
 ## Runtime pivot contract
 
@@ -71,4 +87,8 @@ Units are metres. The `bpy` helper coordinates are `(cross-width, up, forward)`;
 
 The existing contact solver supplies pole bases and heads. GLB geometry does not drive physics. Wheels remain on the chassis, doors and roof remain on the suspended body, and poles/ropes are updated in world coordinates. The adapter caches the latest snapshot during asynchronous loading, shares immutable GLB geometry, clones motion nodes/materials per vehicle and reference-counts the shared template. Load errors reach the existing error UI.
 
-`src/tests/vehicle-asset.test.ts` parses the actual GLB and verifies dimensions, node names, hinges, combined roll/pitch alignment, wheel grounding, door/spin independence and disposal before loading completes. The route/fleet/contact tests remain in place. After geometry approval, add UVs and materials in Blender and extend this pipeline; do not rebuild body meshes in Three.js.
+`src/tests/vehicle-asset.test.ts` parses the actual GLB and verifies PNG packaging, node names, hinges, combined roll/pitch alignment, wheel grounding, independent fleet animation, LOD switching and disposal before loading completes. Body geometry and UVs belong in Blender; do not rebuild them in Three.js.
+
+## Known limits
+
+Cover radii and hidden battery/pole mechanisms are photo-guided estimates. Municipal graphics are simplified and route text is static. Wiper/mirror pivots are ready for animation, but weather and mirror folding are not simulated. LOD2 intentionally removes small cabin/hardware detail. Local browser checks establish behavior, not universal performance or visual approval.

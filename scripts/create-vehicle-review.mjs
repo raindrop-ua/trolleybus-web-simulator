@@ -11,7 +11,14 @@ const index = args.indexOf('--iteration');
 const iteration = index >= 0 ? args[index + 1] : undefined;
 if (!iteration || !/^[a-zA-Z0-9_-]+$/.test(iteration))
   throw new Error('Use --iteration 005 (an existing Blender preview iteration).');
-const output = path.join(root, 'assets/vehicles/bkm32100d/review/gate-a');
+const materials = args.includes('--materials');
+const gate = materials ? 'Gates B–E' : 'Gate A';
+const renderLabel = materials ? 'PBR' : 'Clay';
+const output = path.join(
+  root,
+  'assets/vehicles/bkm32100d/review',
+  materials ? 'gates-b-e' : 'gate-a',
+);
 await mkdir(output, { recursive: true });
 const style = `
 *{box-sizing:border-box}html,body{margin:0;background:#e8edf0;color:#1d2c36;font-family:Arial,sans-serif}
@@ -25,7 +32,7 @@ p{font-size:16px;line-height:1.4;margin:5px 0}.tag{background:#d6e2e8;border-rad
 .pair .caption{min-height:60px;padding:12px 18px}.pair .caption p{font-size:15px}.pair h2{font-size:18px}.note{font-size:13px;color:#5d707c}
 `;
 const header = (title, subtitle) =>
-  `<header><div><div class="eyebrow">БКМ / АКСМ 32100D · 2004 · GATE A</div><h1>${title}</h1><p>${subtitle}</p></div><div class="tag">Силуэт · итерация ${iteration} · без текстур</div></header>`;
+  `<header><div><div class="eyebrow">БКМ / АКСМ 32100D · 2004 · ${gate}</div><h1>${title}</h1><p>${subtitle}</p></div><div class="tag">Итерация ${iteration} · ${materials ? 'PNG + PBR' : 'без текстур'}</div></header>`;
 const card = (image, title, text, file = image) =>
   `<article class="card"><img src="../../references/${image}"/><div class="caption"><h2>${title}</h2><p>${text}</p><small>${file}</small></div></article>`;
 const html = (body) =>
@@ -92,42 +99,42 @@ const render = (file) => {
   return `<img src="../../previews/${iteration}/${file}.png"/>`;
 };
 const comparisonPair = (reference, preview, leftTitle, rightTitle, note) =>
-  `<section class="pair"><article class="card">${reference}<div class="caption"><h2>${leftTitle}</h2><p class="note">${note}</p></div></article><article class="card">${render(preview)}<div class="caption"><h2>${rightTitle}</h2><p class="note">Нейтральные материалы. Проверяем форму, а не окраску.</p></div></article></section>`;
+  `<section class="pair"><article class="card">${reference}<div class="caption"><h2>${leftTitle}</h2><p class="note">${note}</p></div></article><article class="card">${render(preview)}<div class="caption"><h2>${rightTitle}</h2><p class="note">${materials ? 'PNG-ливрея, мягкий студийный свет и отдельные материалы стекла, краски, резины и металла.' : 'Нейтральные материалы. Проверяем форму, а не окраску.'}</p></div></article></section>`;
 const comparison =
   header(
-    'Фотография ↔ геометрия',
-    'Сравнение форм без ливреи и текстур. Кадры перспективные: наложение не считается измерительным чертежом.',
+    materials ? 'Фотография ↔ стилизованная модель' : 'Фотография ↔ геометрия',
+    'Проверка пропорций и узнаваемых деталей. Кадры перспективные: это сравнение, а не измерительный чертёж.',
   ) +
   `<div class="rows">` +
   comparisonPair(
     crop('00100179.jpg', 1620, 1080, 610, 310, 770, 460),
     'front-three-quarter',
     'Фото · общий передний ракурс',
-    'Clay · передний ракурс',
+    `${renderLabel} · передний ракурс`,
     'Закрытый кожух, оконный пояс, свесы и переход к носовой части.',
   ) +
   comparisonPair(
     crop('00013495.jpg', 1240, 746, 280, 240, 350, 470),
     'front-detail',
     'Фото · лобовая часть',
-    'Clay · лобовая часть',
+    `${renderLabel} · лобовая часть`,
     'Панорамное стекло, скруглённый козырёк и чёрная V-образная маска.',
   ) +
   comparisonPair(
     crop('00097061.jpg', 1200, 800, 340, 245, 410, 420),
     'rear-three-quarter',
     'Фото · задняя часть',
-    'Clay · задняя часть',
+    `${renderLabel} · задняя часть`,
     'Объём оборудования за последней дверью и закруглённая корма.',
   ) +
   comparisonPair(
     crop('design-sheet-2.png', 1536, 1024, 35, 20, 1150, 335),
     'side',
     'Сводный лист · пассажирская сторона',
-    'Clay · пассажирская сторона',
+    `${renderLabel} · пассажирская сторона`,
     'Проверка ритма дверей/окон, базы и профиля крыши. Фото имеют приоритет.',
   ) +
-  `</div><footer class="foot"><p><strong>Gate A:</strong> подготовлен к визуальной оценке. Механика дверей, колёс, крена и контактных штанг остаётся в симуляции. Детальные материалы и ливрея — последующие этапы.</p></footer>`;
+  `</div><footer class="foot"><p><strong>${gate}:</strong> ${materials ? 'детали и материалы в Blender, отдельные подвижные узлы, LOD1/2 для браузера. Штанги управляются решателем симуляции; провода не следуют за заездом к остановке.' : 'подготовлен к визуальной оценке. Детальные материалы и ливрея — последующие этапы.'}</p></footer>`;
 await writeFile(path.join(output, 'reference-board.html'), html(board));
 await writeFile(path.join(output, 'comparison.html'), html(comparison));
 
@@ -183,4 +190,4 @@ try {
 } finally {
   await rm(temporary, { recursive: true, force: true });
 }
-console.log(`Gate A reference and comparison sheets saved for iteration ${iteration}.`);
+console.log(`${gate} reference and comparison sheets saved for iteration ${iteration}.`);

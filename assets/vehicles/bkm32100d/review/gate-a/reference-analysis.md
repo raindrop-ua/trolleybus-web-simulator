@@ -38,6 +38,8 @@ The photographs do not establish exact factory height, roof-module interior layo
 
 ## Review evidence
 
-Iteration `004` recorded the initial surface pass; `005` corrected lamp housings intersecting the swept nose. The current native project and shipping GLB are `005`. Nine full-resolution neutral clay views and the photo/render comparison board accompany it. The game uses simple blue/black material IDs and soft existing city lighting, with zero vehicle image textures.
+Iteration `004` recorded the initial surface pass; `005` corrected lamp housings intersecting the swept nose. At the Gate A checkpoint, the native project and shipping GLB were `005`. Nine full-resolution neutral clay views and the photo/render comparison board accompany it. That checkpoint used simple blue/black material IDs and soft existing city lighting, with zero vehicle image textures.
 
-The shipping model contains 51,100 triangles and is 2,031,240 bytes. Khronos validation reports no errors or warnings. Browser inspection covered front, all open doors, a simulated corner and the city follow view. All 34 tests pass, including actual-GLB motion/pivot contracts. Gate A acceptance remains a visual review of the silhouette; automated export and runtime tests establish compatibility, not visual approval.
+The Gate A shipping model contained 51,100 triangles and is 2,031,240 bytes. Khronos validation reports no errors or warnings. Browser inspection covered front, all open doors, a simulated corner and the city follow view. All 34 tests passed, including actual-GLB motion/pivot contracts. Gate A acceptance remains a visual review of the silhouette; automated export and runtime tests establish compatibility, not visual approval.
+
+The subsequent user-authorized detail/material/runtime pass is recorded in `../gates-b-e/`; current source and shipping assets are iteration `009`.

@@ -9,6 +9,8 @@ export interface PathSample {
   yaw: number;
   curvature: number;
   segmentId: string;
+  /** Physical metres per reference-route metre; omitted for arc-length road paths. */
+  distanceScale?: number;
 }
 export interface RoadSegment {
   id: string;
@@ -106,6 +108,8 @@ export interface VehicleSnapshot {
   id: string;
   distanceAlongRoute: number;
   totalDistance: number;
+  /** Physical wheel travel, distinct from reference-route progress during a curb manoeuvre. */
+  travelledDistance?: number;
   position: Vec3;
   yaw: number;
   speed: number;

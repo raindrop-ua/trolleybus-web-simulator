@@ -12,6 +12,7 @@ import type {
 import { AutonomousDriver } from '../domain/driving/AutonomousDriver';
 import type { DrivingController } from '../domain/driving/DrivingController';
 import { observeRoad } from '../domain/driving/RoadAwareness';
+import { StopApproachPath } from '../domain/roads/StopApproachPath';
 import { calculatePoleBase, solvePoleContact } from '../domain/overhead/PoleContactSolver';
 import { clampDwell, DOOR_TRANSITION_SECONDS, Timetable } from '../domain/schedules/Timetable';
 import {
@@ -28,6 +29,7 @@ interface VehicleRuntime {
   dynamics: DynamicsState;
   initialDistance: number;
   totalDistance: number;
+  travelledDistance: number;
   nextStopIndex: number;
   nextStopDistance: number;
   currentStopId: string | null;
@@ -56,6 +58,7 @@ export class SimulationEngine {
   private random: SeededRandom;
   private readonly timetable: Timetable;
   private readonly stops: StopDefinition[];
+  private readonly vehiclePath: StopApproachPath;
   private vehicles: VehicleRuntime[] = [];
   private elapsed = 0;
   private paused = false;
@@ -74,8 +77,9 @@ export class SimulationEngine {
       throw new Error('Simulation needs a route with stops.');
     this.seed = seed;
     this.random = new SeededRandom(seed);
-    this.timetable = new Timetable(world.road);
     this.stops = [...world.stops].sort((left, right) => left.distance - right.distance);
+    this.vehiclePath = new StopApproachPath(world.road, this.stops);
+    this.timetable = new Timetable(this.vehiclePath);
     this.initializeVehicles();
   }
 
@@ -113,20 +117,23 @@ export class SimulationEngine {
     this.elapsed += dt;
     this.vehicles.forEach((vehicle, index) => {
       const awareness = observeRoad(
-        this.world.road,
+        this.vehiclePath,
         vehicle.totalDistance,
         vehicle.dynamics.speed,
         vehicle.configuration.maxSpeed,
       );
       if (vehicle.state === 'disconnected') {
         // The emergency brake obeys the same finite acceleration/jerk limits as normal driving.
-        vehicle.totalDistance += integrateVehicleDynamics(
+        const movement = integrateVehicleDynamics(
           vehicle.dynamics,
           { traction: 0, braking: 1, steering: 0, doorsRequestedOpen: false },
           vehicle.configuration,
           awareness.curvature,
           dt,
         );
+        vehicle.totalDistance +=
+          movement / this.vehiclePath.sample(vehicle.totalDistance).distanceScale;
+        vehicle.travelledDistance += movement;
         this.updateContacts(vehicle);
         return;
       }
@@ -151,7 +158,9 @@ export class SimulationEngine {
         awareness.curvature,
         dt,
       );
-      vehicle.totalDistance += movement;
+      vehicle.totalDistance +=
+        movement / this.vehiclePath.sample(vehicle.totalDistance).distanceScale;
+      vehicle.travelledDistance += movement;
 
       if (vehicle.state === 'waiting' && this.elapsed >= vehicle.releaseAt)
         vehicle.state = 'driving';
@@ -176,11 +185,12 @@ export class SimulationEngine {
       elapsed: this.elapsed,
       vehicles: this.vehicles.map((vehicle): VehicleSnapshot => {
         const distanceAlongRoute = wrap(vehicle.totalDistance, this.world.road.length);
-        const sample = this.world.road.sample(distanceAlongRoute);
+        const sample = this.vehiclePath.sample(distanceAlongRoute);
         return {
           id: vehicle.configuration.id,
           distanceAlongRoute,
           totalDistance: vehicle.totalDistance,
+          travelledDistance: vehicle.travelledDistance,
           position: { ...sample.position },
           yaw: sample.yaw,
           speed: vehicle.dynamics.speed,
@@ -214,7 +224,7 @@ export class SimulationEngine {
       const stop = this.stops[nextStopIndex]!;
       const nextStopDistance =
         stop.distance + (stop.distance < distance + 0.5 ? this.world.road.length : 0);
-      const sample = this.world.road.sample(distance);
+      const sample = this.vehiclePath.sample(distance);
       const poles: [PoleContact, PoleContact] = [
         solvePoleContact(
           this.world.contact,
@@ -242,6 +252,7 @@ export class SimulationEngine {
         dynamics: createDynamicsState(),
         initialDistance: distance,
         totalDistance: distance,
+        travelledDistance: distance,
         nextStopIndex,
         nextStopDistance,
         currentStopId: null,
@@ -345,7 +356,7 @@ export class SimulationEngine {
   }
 
   private updateContacts(vehicle: VehicleRuntime): void {
-    const sample = this.world.road.sample(vehicle.totalDistance);
+    const sample = this.vehiclePath.sample(vehicle.totalDistance);
     const { rollAngle, pitchAngle } = vehicle.dynamics;
     vehicle.poles = [
       solvePoleContact(

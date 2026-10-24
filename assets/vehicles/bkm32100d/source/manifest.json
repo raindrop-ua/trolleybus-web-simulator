@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "stage": "gate-a-silhouette",
+  "schemaVersion": 2,
+  "stage": "gates-b-e-stylized-production",
   "model": "AKSM / BKM 32100D",
   "units": "metres",
   "runtimeAxes": {
@@ -10,8 +10,8 @@
   },
   "dimensions": {
     "model": "AKSM / BKM 32100D",
-    "stage": "gate-a-silhouette",
-    "reviewGate": "A",
+    "stage": "gates-b-e-stylized-production",
+    "reviewGate": "B-E",
     "units": "metres",
     "runtimeAxes": {
       "up": "+Y",
@@ -227,7 +227,10 @@
       -6.1100001
     ]
   },
-  "textures": 0,
+  "lodLevels": [
+    1,
+    2
+  ],
   "movingParts": [
     "bkm32100d",
     "body-shell",
@@ -261,5 +264,26 @@
     "wheel-steer-rear-right",
     "wiper-left-pivot",
     "wiper-right-pivot"
+  ],
+  "poleContract": {
+    "base": {
+      "halfSpacing": 0.38,
+      "height": 3.43,
+      "longitudinal": -0.65
+    },
+    "length": 7.8,
+    "shaftLocalAxis": "+Y",
+    "contactHeadOrigin": "solver endpoint",
+    "shaftFractions": [
+      0.56,
+      0.44
+    ]
+  },
+  "textures": [
+    "livery-basecolor.png",
+    "surfaces-basecolor.png",
+    "surfaces-orm.png",
+    "surfaces-normal.png",
+    "fleet-number-2004.png"
   ]
 }

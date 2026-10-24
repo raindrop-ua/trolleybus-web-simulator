@@ -5,3 +5,5 @@ artifacts
 .playwright-mcp
 assets/vehicles/bkm32100d/source/manifest.json
 assets/vehicles/bkm32100d/review/gate-a/*.html
+assets/vehicles/bkm32100d/review/gates-b-e/*.html
+assets/vehicles/bkm32100d/textures/*.svg

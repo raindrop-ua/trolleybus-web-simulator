@@ -1,17 +1,154 @@
 {
-  "stage": "gate-a-silhouette",
-  "bytes": 2031240,
-  "nodes": 90,
-  "meshNodes": 58,
-  "triangles": 51100,
-  "materials": 14,
-  "textures": 0,
-  "validation": {
-    "numErrors": 0,
-    "numWarnings": 0,
-    "numInfos": 0,
-    "numHints": 0,
-    "messages": [],
-    "truncated": false
+  "stage": "gates-b-e-stylized-production",
+  "gameplay": {
+    "bytes": 7780416,
+    "nodes": 158,
+    "meshNodes": 126,
+    "trianglesByLOD": {
+      "1": 48710,
+      "2": 22963
+    },
+    "materials": 15,
+    "textures": [
+      {
+        "name": "livery-basecolor",
+        "width": 2048,
+        "height": 2048,
+        "bytes": 452085
+      },
+      {
+        "name": "surfaces-normal",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1411361
+      },
+      {
+        "name": "surfaces-basecolor",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1987458
+      },
+      {
+        "name": "surfaces-orm",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 395020
+      },
+      {
+        "name": "fleet-number-2004",
+        "width": 256,
+        "height": 128,
+        "bytes": 5803
+      }
+    ],
+    "estimatedTextureMiB": 37.49999999999999,
+    "validation": {
+      "numErrors": 0,
+      "numWarnings": 0,
+      "numInfos": 0,
+      "numHints": 0,
+      "messages": [],
+      "truncated": false
+    }
+  },
+  "lod0": {
+    "bytes": 8488788,
+    "nodes": 96,
+    "meshNodes": 64,
+    "trianglesByLOD": {
+      "0": 68884
+    },
+    "materials": 15,
+    "textures": [
+      {
+        "name": "livery-basecolor",
+        "width": 2048,
+        "height": 2048,
+        "bytes": 452085
+      },
+      {
+        "name": "surfaces-normal",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1411361
+      },
+      {
+        "name": "surfaces-basecolor",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1987458
+      },
+      {
+        "name": "surfaces-orm",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 395020
+      },
+      {
+        "name": "fleet-number-2004",
+        "width": 256,
+        "height": 128,
+        "bytes": 5803
+      }
+    ],
+    "estimatedTextureMiB": 37.49999999999999,
+    "validation": {
+      "numErrors": 0,
+      "numWarnings": 0,
+      "numInfos": 0,
+      "numHints": 0,
+      "messages": [],
+      "truncated": false
+    }
+  },
+  "lod2": {
+    "bytes": 5181528,
+    "nodes": 94,
+    "meshNodes": 62,
+    "trianglesByLOD": {
+      "2": 22963
+    },
+    "materials": 15,
+    "textures": [
+      {
+        "name": "livery-basecolor",
+        "width": 2048,
+        "height": 2048,
+        "bytes": 452085
+      },
+      {
+        "name": "surfaces-normal",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1411361
+      },
+      {
+        "name": "surfaces-basecolor",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1987458
+      },
+      {
+        "name": "surfaces-orm",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 395020
+      },
+      {
+        "name": "fleet-number-2004",
+        "width": 256,
+        "height": 128,
+        "bytes": 5803
+      }
+    ],
+    "estimatedTextureMiB": 37.49999999999999,
+    "validation": {
+      "numErrors": 0,
+      "numWarnings": 0,
+      "numInfos": 0,
+      "numHints": 0,
+      "messages": [],
+      "truncated": false
+    }
   }
 }
