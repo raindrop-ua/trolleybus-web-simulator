@@ -2,7 +2,19 @@
 
 Checked locally on 24 October 2026 with Node 24.18, Vite 7.3.7, Three.js 0.186, React 19 and Vitest 4.1.12.
 
-## Blender vehicle pipeline — geometry review
+## Gate A silhouette pass — iteration 005
+
+Blender 5.2.3 LTS produced the current native project, optimized GLB and nine full-resolution neutral clay renders. Iteration `004` records the initial body/roof surface pass; `005` fixes lamp housing intersections. The reference analysis and annotated comparison sheets live under `assets/vehicles/bkm32100d/review/gate-a/`. The source includes six primary photographs and two supplied overview sheets; contradictory mirrored doors and duplicated pole mechanisms in those sheets were not transferred.
+
+The asset now uses a shared body envelope, swept front surfaces and panoramic glazing, a continuous rolled roof and closed tapered equipment housings. This pass preserves the existing axle, door, suspension and pole coordinates. No simulation, domain, world/route or contact-network source files changed. Detailed textures and later production gates remain deferred; visual approval of Gate A is pending.
+
+The shipping GLB is **2,031,240 bytes**, with **51,100 triangles**, 58 mesh nodes, 90 total nodes, 14 materials and **zero textures**. Khronos validation reports zero errors, warnings, infos or hints. Production build, ESLint/boundaries and all **34 tests** pass, including the actual-GLB contract tests.
+
+Chromium inspection covered the front, all open doors, a real simulated corner and the existing city follow camera. Across nine combined roll/pitch poses, pole-base agreement remained below `6e-10 m` and wheel-height error below `1e-8 m`. The corner snapshot retained both contacts at 1.76° body roll. The isolated vehicle submitted 109 draw calls including shadows. No browser errors or warnings were recorded.
+
+A 180-frame city follow sample at a 1440 × 900 viewport and renderer pixel ratio 1.7 averaged 16.66 ms/frame (approximately 60 fps), with a 17.4 ms 95th percentile. Its final frame submitted 265 draw calls including shadows. This is a short local Chromium sample, not a hardware or cross-browser guarantee. Screenshots: `artifacts/gate-a-005-{front,doors,corner,city}.png`.
+
+## Earlier Blender vehicle pipeline — geometry review
 
 Blender 5.2.3 LTS generated the native `assets/vehicles/bkm32100d/source/bkm32100d.blend`, modular `bpy` source, packed reference photographs and three saved preview iterations. Every iteration includes front, passenger-side, rear and isometric PNG renders. Iteration `003` is the current geometry-review draft; detailed textures await approval.
 

@@ -1,4 +1,4 @@
-# BKM / AKSM 32100D — geometry review
+# BKM / AKSM 32100D — Gate A silhouette review
 
 This is an editable Blender source asset based on the supplied photographs. Geometry approval is pending. Materials only distinguish paint, glass, rubber and metal. No detailed textures, livery graphics or baked shading are included in the shipping GLB.
 
@@ -6,8 +6,10 @@ This is an editable Blender source asset based on the supplied photographs. Geom
 
 - `source/bkm32100d.blend`: native project with modular objects, named pivots, packed photographs and review cameras.
 - `model.json`: authoring dimensions and mechanical layout. Values are photo-guided modelling proportions; they are not a factory blueprint.
-- `references/`: the six supplied reference images, also packed into the blend.
-- `previews/001`, `002`, `003`: saved front, side, rear and isometric review images for each iteration. `003` is current.
+- `references/`: six primary photographs and two supporting design sheets, all packed into the blend. Real photographs take priority where the sheets contradict them.
+- `previews/005`: current full-resolution neutral clay renders. Nine views cover front, rear, both sides, isometric, front/rear three-quarter, front detail and roof detail. Earlier directories preserve iteration history.
+- `review/gate-a/reference-analysis.md`: source priority, geometry checklist and uncertain features.
+- `review/gate-a/reference-board.{html,png}` and `comparison.{html,png}`: annotated source board and photo/clay comparison.
 - `source/bkm32100d.raw.glb`: unoptimized Blender export.
 - `source/manifest.json`: exported world-space pivot positions and authoring configuration.
 - `source/export-report.json`: optimized GLB size, geometry counts and Khronos validation results.
@@ -18,26 +20,34 @@ This is an editable Blender source asset based on the supplied photographs. Geom
 Run from the repository root with Blender 5.2+ and Node installed:
 
 ```sh
-npm run vehicle:build -- --iteration 004
+npm run vehicle:build -- --iteration 006
 ```
 
-The command runs `scripts/blender/generate_trolleybus.py` in background Blender, builds the native project, saves all four preview renders, exports a temporary copy, batches static meshes by parent/material, then runs glTF Transform deduplication/pruning and the Khronos validator. Named motion nodes are never flattened. Optimization fails if node names change, textures are introduced, or validation reports errors/warnings. No compression decoder is required by the current GLB.
+The command runs `scripts/blender/generate_trolleybus.py` in background Blender, builds the native project, saves all nine clay preview renders, exports a temporary copy, batches static meshes by parent/material, then runs glTF Transform deduplication/pruning and the Khronos validator. Clay overrides are restored after rendering; the native project and game retain simple blue/black material IDs. Named motion nodes are never flattened. Optimization fails if node names change, textures are introduced, or validation reports errors/warnings. No compression decoder is required by the current GLB.
 
 Set `BLENDER_BIN` when Blender is not in a standard macOS or Linux location. `--quick` makes lower-resolution preview renders for draft work. Give every major iteration a new ID; the preview directories preserve visual history. `--skip-renders` is reserved for generator maintenance, not major geometry revisions.
 
 To edit directly in Blender, open `source/bkm32100d.blend`, edit the objects, save, then run:
 
 ```sh
-npm run vehicle:export -- --iteration 005
+npm run vehicle:export -- --iteration 006
 ```
 
-This opens the existing blend and exports it **without regenerating geometry**. It renders all four views and updates the GLB and validation report. Re-running `vehicle:build` intentionally replaces manual edits with generated geometry.
+This opens the existing blend and exports it **without regenerating geometry**. It renders all nine views and updates the GLB and validation report. Re-running `vehicle:build` intentionally replaces manual edits with generated geometry.
+
+Generate the comparison sheets from any saved preview iteration:
+
+```sh
+npm run vehicle:review -- --iteration 005
+```
+
+This layout-only script uses Chrome/Chromium (`CHROME_BIN` may override its location). It crops source images without retouching them, uses temporary browser profiles and does not alter the model. Comparison crops emphasize the body; the original preview files retain the full poles. Gate A visual approval remains pending; later detail, livery and LOD gates are outside this pass.
 
 ## Modules and collections
 
-`geometry.py` supplies `bpy` primitives; `body.py` builds panels, glazing and fascia; `roof.py` builds the closed cowl and equipment fairings; `running_gear.py` builds wheels, doors, poles and interior blockout; `preview.py` owns the studio/cameras; `export.py` owns a temporary export copy. The native source keeps individual objects and non-destructive bevels. Static joining happens only in that export copy.
+`geometry.py` supplies `bpy` primitives; `surfaces.py` owns the shared body envelope, swept front fascia/windshield/brow, rolled roof and rounded rear cap; `body.py` assembles panels and glazing; `roof.py` builds the closed cowl and tapered equipment housings from longitudinal control sections; `running_gear.py` builds wheels, doors, poles and interior blockout; `preview.py` owns the studio/cameras; `export.py` owns a temporary export copy. The native source keeps individual objects and non-destructive bevels. Static joining happens only in that export copy.
 
-Native collections separate rig, body/glazing, roof, wheels, doors, poles and interior. Collection `90_REFERENCE_PHOTOS__NOT_EXPORTED` contains packed photo empties; enable its viewport visibility to inspect them. Collection `99_REVIEW_STUDIO__NOT_EXPORTED` contains ground, lights and four cameras. Neither collection is exported. `START_HERE.md` is embedded in the blend.
+Native collections separate rig, body/glazing, roof, wheels, doors, poles and interior. Collection `90_REFERENCE_PHOTOS__NOT_EXPORTED` contains packed photo empties; enable its viewport visibility to inspect them. Collection `99_REVIEW_STUDIO__NOT_EXPORTED` contains ground, lights and nine cameras. Neither collection is exported. `START_HERE.md` is embedded in the blend.
 
 ## Runtime pivot contract
 

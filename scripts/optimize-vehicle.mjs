@@ -40,7 +40,9 @@ for (const node of root.listNodes()) {
       (primitive.getIndices()?.getCount() ?? primitive.getAttribute('POSITION').getCount()) / 3;
 }
 const report = {
-  stage: 'geometry-review',
+  stage: JSON.parse(
+    await readFile(new URL('../assets/vehicles/bkm32100d/model.json', import.meta.url), 'utf8'),
+  ).stage,
   bytes: bytes.length,
   nodes: root.listNodes().length,
   meshNodes: root.listNodes().filter((node) => node.getMesh()).length,

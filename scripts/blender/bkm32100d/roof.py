@@ -1,14 +1,35 @@
 """Closed front cowl, battery-equipment fairings and exposed pole pedestals."""
 import math
 from .geometry import mesh, profile, box, cylinder, rod
+from .surfaces import sample_profile
+
+
+def equipment_loft(name, sections, mat, parent, coll):
+    """Closed aerodynamic equipment volume with editable longitudinal sections."""
+    vertices, faces = [], []
+    for z, width, base, crown in sections:
+        rise = crown - base
+        left = [(-width, base), (-width, base + rise * .15),
+                (-width * .97, base + rise * .55), (-width * .88, crown - .025),
+                (-width * .72, crown), (0, crown + .008)]
+        section = left + [(-x, y) for x, y in left[-2::-1]]
+        vertices += [(x, y, z) for x, y in section]
+    count = len(section)
+    for row in range(len(sections) - 1):
+        for i in range(count):
+            a = row * count + i
+            b = row * count + (i + 1) % count
+            faces.append((a, b, b + count, a + count))
+    faces += [tuple(range(count - 1, -1, -1)), tuple(range((len(sections) - 1) * count, len(sections) * count))]
+    return mesh(name, vertices, faces, mat, parent, coll, smooth=True)
 
 
 def build_roof(cfg, mats, parent, coll):
     sections = [
-        (3.56, 1.07, 3.10, 3.25), (3.82, 1.16, 3.14, 3.36),
-        (4.18, 1.20, 3.15, 3.395), (4.90, 1.20, 3.14, 3.39),
-        (5.28, 1.18, 3.11, 3.34), (5.65, 1.14, 3.06, 3.25),
-        (5.90, 1.11, 3.015, 3.13), (6.025, 1.075, 2.99, 3.055),
+        (3.56, 1.08, 3.10, 3.28), (3.82, 1.16, 3.12, 3.33),
+        (4.18, 1.20, 3.13, 3.35), (4.72, 1.20, 3.11, 3.32),
+        (5.15, 1.18, 3.08, 3.275), (5.55, 1.15, 3.045, 3.20),
+        (5.86, 1.12, 3.015, 3.13), (6.025, 1.075, 3.0, 3.065),
     ]
     columns, vertices, faces = 24, [], []
     for z, half, edge, crown in sections:
@@ -32,15 +53,20 @@ def build_roof(cfg, mats, parent, coll):
             vertices += [(vertices[a][0], 2.99, vertices[a][2]), (vertices[b][0], 2.99, vertices[b][2])]
             faces.append((a, c, c + 1, b) if column == 0 else (a, b, c + 1, c))
     mesh('roof-front-closed-cowl', vertices, faces, mats['paint'], parent, coll, smooth=True)
-    for index, (z, y) in enumerate(((5.28, 3.344), (5.44, 3.309))):
+    for index, z in enumerate((5.12, 5.28)):
+        y = sample_profile([(s[0], s[3]) for s in sections], z) + .004
         box(f'roof-cowl-vent-{index}', (.62, .008, .025), (0, y, z), mats['trim'], parent, coll, .004)
     for side in (-1, 1):
-        profile(f'roof-high-battery-fairing-{side}', [(-1.62, 3.06), (3.63, 3.06),
-                (3.45, 3.38), (3.21, 3.42), (3.02, 3.63), (2.80, 3.61),
-                (-1.17, 3.59), (-1.40, 3.42)], .16, side * 1.075, mats['paint'], parent, coll, .045)
+        profile(f'roof-pole-well-tapered-shoulder-{side}', [(-1.63, 3.07), (.55, 3.07),
+                (.55, 3.54), (.27, 3.53), (-.30, 3.47), (-1.10, 3.34), (-1.45, 3.23)],
+                .16, side * 1.10, mats['paint'], parent, coll, .035)
         profile(f'roof-rear-low-fairing-{side}', [(-5.67, 3.04), (-1.8, 3.04), (-1.94, 3.22), (-5.36, 3.22)],
                 .15, side * 1.07, mats['paint'], parent, coll, .025)
-    box('roof-battery-enclosure', (1.85, .22, 3.29), (0, 3.24, 1.68), mats['paint'], parent, coll, .065)
+    equipment_loft('roof-enclosed-raised-equipment-pod', [
+        (.03, .98, 3.08, 3.32), (.24, 1.13, 3.08, 3.47), (.55, 1.16, 3.08, 3.55),
+        (2.78, 1.16, 3.08, 3.56), (3.02, 1.15, 3.08, 3.55),
+        (3.26, 1.13, 3.08, 3.42), (3.61, 1.06, 3.08, 3.30),
+    ], mats['paint'], parent, coll)
     for index, z in enumerate((-4.75, -2.65)):
         box(f'roof-service-hatch-{index}', (.86, .06, .76), (0, 3.11, z), mats['metal'], parent, coll, .028)
     mount = cfg['poleMount']
