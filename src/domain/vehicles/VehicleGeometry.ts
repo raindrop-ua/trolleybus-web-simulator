@@ -10,9 +10,10 @@ export const BODY_ROLL_PIVOT_HEIGHT = 0.8;
 
 export const FRONT_AXLE = 3.1;
 export const REAR_AXLE = -2.9;
-export const WHEEL_RADIUS = 0.56;
-export const WHEEL_ARCH_RADIUS = 0.69;
-export const WHEEL_ARCH_OUTER_RADIUS = 0.75;
+export const WHEEL_RADIUS = 0.49;
+// Leave suspension travel even when braking and cornering together.
+export const WHEEL_ARCH_RADIUS = 0.62;
+export const WHEEL_ARCH_OUTER_RADIUS = 0.67;
 
 export interface DoorLayout {
   readonly id: 'front' | 'middle' | 'rear';

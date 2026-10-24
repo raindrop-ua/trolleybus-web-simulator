@@ -216,6 +216,9 @@ export class SceneRenderer {
     this.resizeObserver.disconnect();
     this.cleanup.forEach((fn) => fn());
     this.camera.dispose();
+    // Vehicles own their shared atlas references and individual number textures.
+    for (const bus of this.buses.values()) bus.dispose();
+    this.buses.clear();
     const geometries = new Set<THREE.BufferGeometry>(),
       materials = new Set<THREE.Material>(),
       textures = new Set<THREE.Texture>();
