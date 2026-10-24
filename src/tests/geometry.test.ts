@@ -12,6 +12,8 @@ import {
   REAR_AXLE,
   REAR_EQUIPMENT_BAY,
   WHEEL_ARCH_OUTER_RADIUS,
+  WHEEL_ARCH_RADIUS,
+  WHEEL_RADIUS,
 } from '../domain/vehicles/VehicleGeometry';
 
 const world = createWorldDefinition();
@@ -49,6 +51,46 @@ describe('twelve-metre trolleybus layout', () => {
     expect(FRONT_AXLE - REAR_AXLE).toBeCloseTo(6, 8);
     for (const vehicle of world.vehicles)
       expect(vehicle.wheelbase).toBeCloseTo(FRONT_AXLE - REAR_AXLE, 8);
+  });
+
+  it('keeps grounded tires inside the faceted wheel openings during combined braking and body roll', () => {
+    const configuration = world.vehicles[0]!;
+    const maximumRoll = (2.5 * Math.PI) / 180;
+    const pitchExtremes = [-configuration.acceleration * 0.012, configuration.braking * 0.012];
+    const archSegments = 8;
+    let minimumClearance = Infinity;
+    for (const side of [-1, 1]) {
+      for (const axle of [FRONT_AXLE, REAR_AXLE]) {
+        for (const roll of [-maximumRoll, maximumRoll]) {
+          for (const pitch of pitchExtremes) {
+            for (let step = 0; step <= 128; step += 1) {
+              const angle = (step / 128) * Math.PI;
+              // Wheel centres stay one radius above the road while the body moves around them.
+              const wheelY = WHEEL_RADIUS * (1 + Math.sin(angle)) - BODY_ROLL_PIVOT_HEIGHT;
+              const wheelZ = axle + Math.cos(angle) * WHEEL_RADIUS;
+              // Undo body pitch/roll to express the tire edge in the side panel's coordinates.
+              const pitchedY = wheelY * Math.cos(pitch) + wheelZ * Math.sin(pitch);
+              const localZ = -wheelY * Math.sin(pitch) + wheelZ * Math.cos(pitch) - axle;
+              const localY =
+                -side * 1.29 * Math.sin(roll) +
+                pitchedY * Math.cos(roll) +
+                BODY_ROLL_PIVOT_HEIGHT -
+                WHEEL_RADIUS;
+              for (let segment = 0; segment < archSegments; segment += 1) {
+                const normal = ((segment + 0.5) / archSegments) * Math.PI;
+                // Check each flat chord; a circular-radius check misses the faceted corners.
+                const clearance =
+                  WHEEL_ARCH_RADIUS * Math.cos(Math.PI / (2 * archSegments)) -
+                  localZ * Math.cos(normal) -
+                  localY * Math.sin(normal);
+                minimumClearance = Math.min(minimumClearance, clearance);
+              }
+            }
+          }
+        }
+      }
+    }
+    expect(minimumClearance).toBeGreaterThan(0);
   });
 });
 

@@ -2,7 +2,19 @@
 
 Checked locally on 24 October 2026 with Node 24.18, Vite 7.3.7, Three.js 0.186, React 19 and Vitest 4.1.12.
 
-## Detailed vehicle and city update
+## AKSM/BKM 32100D reference and PNG update
+
+The model now follows the supplied 32100D photos with the front equipment cover fitted: a closed blue cowl, tall side roof fairings, deeper black V-mask, tighter wave pattern and violet rear ribbons. Wheel diameter is reduced from 1.12 m to 0.98 m, with matching rims, tire profiles and arches. These are photo-guided modelling proportions, not a claim of factory drawing accuracy.
+
+All **30 tests**, the production build, ESLint, boundaries, formatting and diff checks pass. The new wheel-clearance test checks the actual faceted opening during combined maximum cornering roll and service acceleration/braking pitch. Both sides, front, open doors and a moving corner were inspected in Chromium. Pole mounts still align with the solver within `3e-15 m`, and road-relative wheel height within `3e-16 m`.
+
+The final vehicle has 36,258 triangles and 102 mesh objects; its isolated view submits 169 draw calls including shadows. All three vehicles share one checked-in 1024² PNG (198 KiB), with individual 256 × 96 fleet-number textures. This replaces three separate 1024² atlases. Reference counting, repeated release and distinct fleet labels were checked. Two WebGL loss/restoration cycles retained identical renderer resource counts (20 textures), cleared the error UI and produced no console warnings or errors.
+
+A 180-frame moving follow sample at 1200 × 796, device scale 2 and capped renderer pixel ratio 1.7 averaged 16.67 ms/frame (approximately 60 fps), with a 19.8 ms 95th percentile. Its final frame submitted 357 draw calls and 644,076 triangles including shadows. This remains a short local Chromium sample, not a hardware or cross-browser guarantee.
+
+Production preview also passed: the bundled PNG returns HTTP 200 as `image/png`, decodes at 1024 × 1024, and the moving fleet/follow view renders without console errors or warnings. The development hook is absent. Screenshots: `artifacts/bkm32100d-{front,driver-side,doors-open,cornering,production-follow}.png`. The city is unchanged in this revision. Earlier verification and measurements follow.
+
+## Earlier detailed vehicle and city update
 
 The second photo-guided revision passes all **29 tests**, the production build, ESLint, architecture boundaries, formatting and diff checks. New layout checks enforce separation between the doors and wheel arches, a 0.98 m equipment bay behind the rear door, and agreement between the rendered axle spacing and the controller's wheelbase. The fleet test still completes three round trips per vehicle without contact loss, overlapping bodies or movement with open doors.
 

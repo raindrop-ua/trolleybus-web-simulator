@@ -46,8 +46,8 @@ Dragging the camera leaves follow mode. Pausing stops simulated time while camer
 ## What's in this version
 
 - Three 12 m trolleybuses, fleet numbers **2001**, **2002** and **2003**, with animated wheels, steering, body suspension and three pairs of opening doors.
-- Photo-guided detailed bodywork: a 0.98 m electrical bay behind the rear door, panoramic curved glazing, sloping roof fairings, profiled tires with rear dual wheels, service hatches, ventilation, pole springs and retrieval ropes.
-- A shared 1024 px surface atlas per vehicle supplies grilles, panel hardware, route displays and markings. Fleet paint and glass use one small prefiltered reflection map; the city stays more restrained, with instanced façade, tree, car and street details.
+- Photo-guided AKSM/BKM **32100D** bodywork: closed blue front equipment cover, high side roof fairings, a curved nose with the black V-shaped mask, a 0.98 m rear electrical bay, 0.98 m diameter tires with rear dual wheels, service hatches, pole springs and retrieval ropes. White waves and violet rear ribbons follow the Dnipro references.
+- One shared **1024 × 1024 PNG** supplies grilles, lamp reflectors, panel hardware, displays and markings; only individual fleet numbers use small generated textures. Paint and glass use one small prefiltered reflection map; the city stays more restrained, with instanced façade, tree, car and street details.
 - Gentle outward body lean in corners, limited to **2.5°**, with a damped return to level. Wheels stay grounded and pole contact follows the sprung roof.
 - Five named places served in both directions: Station, Central Square, University, Riverside and Park. These are **ten directional stop visits per round trip**.
 - A directed road circuit made from arc-length sampled cubic Bézier segments, including terminal loops and slower curved sections.
@@ -58,7 +58,7 @@ Dragging the camera leaves follow mode. Pausing stops simulated time while camer
 
 The route is a deliberately compressed **approximately 756 m round trip**, rather than the original specification's kilometre-scale route. Vehicles retain metre-scale proportions. Travel times and timetables belong to this miniature; this is not a geographic reconstruction or a real service timetable.
 
-All runtime scenery, vehicles and text textures are procedural. The supplied photos and concept sheet guide the blue body, dark glazing, white wave and low-poly visual direction; they are not loaded as scene assets.
+Vehicle and scenery geometry is procedural. The supplied photos guide the 32100D silhouette and livery; they are not loaded as scene assets. Vehicle surface artwork is stored in `src/rendering/vehicles/assets/bkm32100d-surface-atlas.png`. To regenerate that PNG after editing `scripts/vehicle-atlas-painter.ts`, run `node scripts/export-vehicle-atlas.mjs` with local Chrome/Chromium installed (or set `CHROME_BIN`). This offline artwork code is excluded from the application bundle.
 
 ## Configuration and structure
 
