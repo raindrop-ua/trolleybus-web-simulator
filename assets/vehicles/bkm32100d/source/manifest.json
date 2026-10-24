@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "stage": "geometry-review",
+  "stage": "gate-a-silhouette",
   "model": "AKSM / BKM 32100D",
   "units": "metres",
   "runtimeAxes": {
@@ -10,7 +10,8 @@
   },
   "dimensions": {
     "model": "AKSM / BKM 32100D",
-    "stage": "geometry-review",
+    "stage": "gate-a-silhouette",
+    "reviewGate": "A",
     "units": "metres",
     "runtimeAxes": {
       "up": "+Y",
@@ -59,7 +60,9 @@
       "00097061.jpg",
       "00098245.jpg",
       "00100179.jpg",
-      "00108977.jpg"
+      "00108977.jpg",
+      "design-sheet-1.png",
+      "design-sheet-2.png"
     ]
   },
   "pivots": {
@@ -114,12 +117,12 @@
       -4.96
     ],
     "mirror-left-pivot": [
-      -1.16,
+      -1.21,
       2.6700001,
       5.5700002
     ],
     "mirror-right-pivot": [
-      1.16,
+      1.21,
       2.6700001,
       5.5700002
     ],

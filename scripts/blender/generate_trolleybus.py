@@ -35,7 +35,7 @@ def main():
         bpy.data.collections.remove(coll)
     bpy.context.scene.unit_settings.system = 'METRIC'
     bpy.context.scene.unit_settings.scale_length = 1.0
-    bpy.context.scene['model_stage'] = 'Geometry approval pending. No detailed textures.'
+    bpy.context.scene['model_stage'] = 'Gate A silhouette review. No detailed textures.'
     bpy.context.scene['iteration'] = args.iteration
     mats = {
         'paint': material('review-blue-body', '#138bc8', .36, .10),

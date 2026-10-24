@@ -63,7 +63,7 @@ def export_glb(root, filepath, cfg, manifest_path):
             if obj.type == 'EMPTY':
                 p = obj.matrix_world.translation
                 pivots[obj.name] = [round(p.x, 7), round(p.z, 7), round(-p.y, 7)]
-        manifest = {'schemaVersion': 1, 'stage': 'geometry-review', 'model': cfg['model'],
+        manifest = {'schemaVersion': 1, 'stage': cfg.get('stage', 'geometry-review'), 'model': cfg['model'],
                     'units': cfg['units'], 'runtimeAxes': cfg['runtimeAxes'], 'dimensions': cfg,
                     'pivots': pivots, 'textures': 0, 'movingParts': sorted(pivots)}
         manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')

@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "vehicle:build": "node scripts/build-vehicle.mjs",
     "vehicle:export": "node scripts/build-vehicle.mjs --from-blend",
-    "vehicle:optimize": "node scripts/optimize-vehicle.mjs"
+    "vehicle:optimize": "node scripts/optimize-vehicle.mjs",
+    "vehicle:review": "node scripts/create-vehicle-review.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",

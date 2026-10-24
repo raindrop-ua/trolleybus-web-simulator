@@ -46,7 +46,7 @@ Dragging the camera leaves follow mode. Pausing stops simulated time while camer
 ## What's in this version
 
 - Three 12 m trolleybuses, fleet numbers **2001**, **2002** and **2003**, with animated wheels, steering, body suspension and three pairs of opening doors.
-- A Blender-authored AKSM/BKM **32100D** geometry-review draft, exported as GLB: closed front cowl, high roof-equipment fairings, panoramic windshield, V-shaped mask, three door openings and rear equipment bay.
+- A Blender-authored AKSM/BKM **32100D** Gate A silhouette candidate, exported as GLB: continuous rounded body/roof transitions, swept panoramic windshield and brow, closed front cowl, tapered equipment housings, three door openings and rear equipment bay.
 - Plain review materials with **zero vehicle textures** while geometry approval is pending. All vehicle meshes come from Blender; the Three.js adapter only loads the asset and drives named motion pivots. The city uses instanced façade, tree, car and street details.
 - Gentle outward body lean in corners, limited to **2.5°**, with a damped return to level. Wheels stay grounded and pole contact follows the sprung roof.
 - Five named places served in both directions: Station, Central Square, University, Riverside and Park. These are **ten directional stop visits per round trip**.
@@ -61,12 +61,13 @@ The route is a deliberately compressed **approximately 756 m round trip**, rathe
 Vehicle source: [native Blender project](assets/vehicles/bkm32100d/source/bkm32100d.blend). The modular `bpy` generator is under `scripts/blender/`; dimensions live in `assets/vehicles/bkm32100d/model.json`. Supplied reference photographs are packed into the native project and excluded from the GLB. Scenery remains procedural.
 
 ```sh
-npm run vehicle:build -- --iteration 004   # Regenerate from bpy modules; save blend + 4 previews + optimized GLB
-npm run vehicle:export -- --iteration 005  # Export manually edited blend; preserve geometry; render 4 views
+npm run vehicle:build -- --iteration 006   # Regenerate from bpy modules; save blend + 9 clay views + optimized GLB
+npm run vehicle:export -- --iteration 006  # Export manually edited blend; preserve geometry; render 9 views
 npm run vehicle:optimize                   # Re-optimize/validate the latest raw GLB only
+npm run vehicle:review -- --iteration 005  # Create reference/comparison boards from a saved iteration
 ```
 
-Use Blender 5.2+ (`BLENDER_BIN` can point to its executable). Native axes are Z-up / -Y-forward; exported axes are Y-up / +Z-forward. Each iteration saves front, side, rear and isometric renders. See the [asset workflow and pivot contract](assets/vehicles/bkm32100d/README.md) before editing or exporting.
+Use Blender 5.2+ (`BLENDER_BIN` can point to its executable). Native axes are Z-up / -Y-forward; exported axes are Y-up / +Z-forward. Current iteration `005` includes front/rear, both sides, isometric, two three-quarter and two close-up renders. The [Gate A comparison](assets/vehicles/bkm32100d/review/gate-a/comparison.html) and [reference analysis](assets/vehicles/bkm32100d/review/gate-a/reference-analysis.md) document the pass. The supplied sheets contain contradictory doors/roof hardware; primary photographs take priority. See the [asset workflow and pivot contract](assets/vehicles/bkm32100d/README.md) before editing or exporting.
 
 ## Configuration and structure
 

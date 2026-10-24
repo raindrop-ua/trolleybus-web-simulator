@@ -1,9 +1,9 @@
 {
-  "stage": "geometry-review",
-  "bytes": 2149892,
+  "stage": "gate-a-silhouette",
+  "bytes": 2031240,
   "nodes": 90,
   "meshNodes": 58,
-  "triangles": 48860,
+  "triangles": 51100,
   "materials": 14,
   "textures": 0,
   "validation": {
