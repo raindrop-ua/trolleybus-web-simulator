@@ -55,29 +55,59 @@ describe('independent vehicle dynamics and driving command boundary', () => {
     expect(state.speed).toBe(0);
   });
 
-  it('steers into a turn, leans outward and settles through damped suspension', () => {
-    const state = createDynamicsState();
-    state.speed = 8;
-    for (let tick = 0; tick < 180; tick += 1)
-      integrateVehicleDynamics(
-        state,
-        { traction: 0, braking: 0, steering: 0.65, doorsRequestedOpen: false },
-        configuration,
-        0.04,
-        dt,
-      );
-    expect(state.steeringAngle).toBeCloseTo(0.65 * 0.55, 6);
-    expect(state.rollAngle).toBeGreaterThan(0.05);
-    expect(state.rollAngle).toBeLessThanOrEqual(0.085);
-    for (let tick = 0; tick < 240; tick += 1)
-      integrateVehicleDynamics(
-        state,
-        { traction: 0, braking: 0, steering: 0, doorsRequestedOpen: false },
-        configuration,
-        0,
-        dt,
-      );
-    expect(Math.abs(state.rollAngle)).toBeLessThan(0.0001);
+  it.each([-1, 1])(
+    'leans gently outward in direction %i and settles smoothly after the turn',
+    (direction) => {
+      const state = createDynamicsState();
+      state.speed = 8;
+      for (let tick = 0; tick < 180; tick += 1)
+        integrateVehicleDynamics(
+          state,
+          { traction: 0, braking: 0, steering: direction * 0.65, doorsRequestedOpen: false },
+          configuration,
+          direction * 0.04,
+          dt,
+        );
+      expect(state.steeringAngle).toBeCloseTo(direction * 0.65 * 0.55, 6);
+      // +z is forward: a positive turn bends toward +x, while +roll tilts the roof toward -x.
+      expect(state.rollAngle * direction).toBeGreaterThan((2 * Math.PI) / 180);
+      expect(Math.abs(state.rollAngle)).toBeLessThanOrEqual((2.5 * Math.PI) / 180);
+      let previousRoll = Math.abs(state.rollAngle);
+      for (let tick = 0; tick < 240; tick += 1) {
+        integrateVehicleDynamics(
+          state,
+          { traction: 0, braking: 0, steering: 0, doorsRequestedOpen: false },
+          configuration,
+          0,
+          dt,
+        );
+        expect(Math.abs(state.rollAngle)).toBeLessThanOrEqual(previousRoll);
+        expect(previousRoll - Math.abs(state.rollAngle)).toBeLessThan(0.003);
+        expect(state.rollAngle * direction).toBeGreaterThanOrEqual(0);
+        previousRoll = Math.abs(state.rollAngle);
+      }
+      expect(Math.abs(state.rollAngle)).toBeLessThan(0.0001);
+    },
+  );
+
+  it('bases body lean on cornering speed and stays level when stopped with steering applied', () => {
+    const slow = createDynamicsState();
+    const fast = createDynamicsState();
+    const stopped = createDynamicsState();
+    slow.speed = 2;
+    fast.speed = 4;
+    for (const state of [slow, fast, stopped]) {
+      for (let tick = 0; tick < 240; tick += 1)
+        integrateVehicleDynamics(
+          state,
+          { traction: 0, braking: 0, steering: 0.65, doorsRequestedOpen: false },
+          configuration,
+          0.04,
+          dt,
+        );
+    }
+    expect(fast.rollAngle / slow.rollAngle).toBeCloseTo(4, 5);
+    expect(stopped.rollAngle).toBe(0);
   });
 
   it('uses normalized commands and brakes before a stop, bend or stationary leader', () => {

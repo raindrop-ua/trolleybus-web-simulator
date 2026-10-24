@@ -2,6 +2,14 @@
 
 Checked locally on 24 October 2026 with Node 24.18, Vite 7.3.7, Three.js 0.186, React 19 and Vitest 4.1.12.
 
+## Model and suspension update
+
+The photo-guided model revision passes all **26 tests**, the production build, ESLint, architecture boundaries, formatting and diff checks. The fleet test still completes three round trips per vehicle without contact loss, overlapping bodies or movement with open doors.
+
+Chromium inspection at 1440 × 900 covered front and rear views, open doors, an actual simulated corner and the city follow camera. The revised model has no console errors or warnings. Across nine combined roll/pitch poses, rendered pole mounts agree with the contact solver within `3e-15 m`; all four wheel centres retain their road-relative height. The captured driving corner has 1.76° outward lean with both poles connected. New screenshots are `artifacts/trolleybus-{front,rear,doors-open,cornering,in-city}.png`.
+
+The sections below preserve the initial v0.1 verification and measurements.
+
 ## Automated checks
 
 - `npm run typecheck`: passed.

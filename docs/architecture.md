@@ -36,6 +36,8 @@ Positions and distances are metres; velocities are metres per second; accelerati
 
 `integrateVehicleDynamics` consumes the command and configuration. It limits longitudinal jerk, integrates speed and distance, rate-limits steering and evolves independent damped roll/pitch states. The bus's road position and yaw still come from the sampled route: steering is a visual/dynamic response to path curvature, rather than free lateral vehicle integration. A future human controller can implement the same command boundary, but free driving also needs a different position integrator.
 
+Body roll follows lateral acceleration (`speed² × curvature`), leans outward, and is limited to 2.5°. Near-critical damping gives a smooth return to level on straight sections and at rest. Positive curvature turns toward vehicle-local `+x`; positive roll shifts the roof toward `-x`. The body rolls and pitches around a shared pivot 0.8 m above the road, while the chassis and wheels stay grounded.
+
 The engine owns the stop-operation state machine:
 
 ```text
@@ -59,7 +61,7 @@ Vehicles complete their stop at rest, animate the door transition and dwell befo
 
 Wire segments store directed graph IDs, start/end nodes, polarity and outgoing edges. The depot turnout supplies a diverging cubic branch for each polarity, connected to the main circuit at both ends. `ContactSwitch` helpers select the scheduled branch or choose an alternate edge from a traction/coasting input. The v0.1 service follows the main circuit: these helpers and branch geometry are extension points, not a running electrical-switch simulation.
 
-`calculatePoleBase` transforms each roof mount from local coordinates `x = ±0.38`, `y = 3.35`, `z = -3.2`, applying body roll, pitch and chassis yaw. `solvePoleContact` intersects the assigned wire with a sphere centred at that base and radius **7.8 m**. It chooses the trailing intersection and follows a continuous, unwrapped wire distance through segment and lap transitions.
+`VehicleGeometry` shares plain-number mount coordinates (`x = ±0.38`, `y = 3.43`, `z = -0.65`) and the body suspension pivot between the contact solver and renderer. The mounts sit just aft of the roof centre. `calculatePoleBase` applies roll and then pitch around that pivot, followed by chassis yaw. `solvePoleContact` intersects the assigned wire with a sphere centred at that base and radius **7.8 m**. It chooses the trailing intersection and follows a continuous, unwrapped wire distance through segment and lap transitions.
 
 The solver first attempts a temporally coherent numerical update. A local bracketing search and bisection provide recovery for initialization or larger movement. It returns the base/head positions, wire distance and segment ID, connection state, length error, wire error and an optional diagnostic. A reachable head is sampled from the wire itself; the pole length is not adjusted to force a connection.
 
@@ -70,6 +72,8 @@ If no valid contact exists, the returned head stays exactly one pole length from
 `SceneRenderer` owns the WebGL scene, lighting, resize handling and raycast selection. `CameraRig` owns an orthographic camera with overview, follow and free navigation. Camera movement does not change simulation time or vehicle state.
 
 `createTrolleybus(id)` returns `group`, `update(snapshot, selected, elapsed)` and `dispose()`. Its chassis follows the sampled world position/yaw, wheels rotate from travelled distance and front wheels follow steering. The body separately pitches and rolls, while door leaves use the snapshot's opening fraction. Pole shafts and contact heads consume the solver's world-coordinate endpoints in a separate group. Static opaque meshes are merged by material to reduce draw calls.
+
+`bodyGeometry` builds extruded longitudinal profiles and faceted front surfaces. Both skirts have real wheel openings with suspension clearance, and passenger-side glazing and framing stop at each door aperture. The roof fairings leave the shared pole mounts exposed. `VehicleGeometry` also supplies axle positions and wheel radius; the world configuration derives its wheelbase from those same axle positions. Static batches separate indexed and non-indexed geometries before merging.
 
 Vehicles, buildings, trees, furniture, parked cars and canvas text textures are created procedurally. The supplied photographs and concept sheet inform the visual direction. No reference image is needed at runtime.
 

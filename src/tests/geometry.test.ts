@@ -4,6 +4,7 @@ import { createWorldDefinition } from '../data/world';
 import { selectActuatedBranch, selectRouteBranch } from '../domain/overhead/ContactSwitch';
 import { calculatePoleBase, solvePoleContact } from '../domain/overhead/PoleContactSolver';
 import type { Polarity } from '../domain/types';
+import { BODY_ROLL_PIVOT_HEIGHT, POLE_MOUNT } from '../domain/vehicles/VehicleGeometry';
 
 const world = createWorldDefinition();
 
@@ -86,6 +87,23 @@ describe('directed arc-length road graph', () => {
 });
 
 describe('paired overhead contact network', () => {
+  it('places mounts near the middle of the roof and rotates them around the body suspension pivot', () => {
+    const position = { x: 10, y: 2, z: -5 };
+    for (const side of [-1, 1]) {
+      const level = calculatePoleBase(position, 0, side);
+      expect(level.x - position.x).toBeCloseTo(side * 0.38, 8);
+      expect(level.y - position.y).toBeCloseTo(3.43, 8);
+      expect(level.z - position.z).toBeCloseTo(-0.65, 8);
+      const rotated = calculatePoleBase(position, Math.PI / 2, side, Math.PI / 2, Math.PI / 2);
+      expect(rotated.x - position.x).toBeCloseTo(side * POLE_MOUNT.halfSpacing, 8);
+      expect(rotated.y - position.y).toBeCloseTo(
+        BODY_ROLL_PIVOT_HEIGHT - POLE_MOUNT.longitudinal,
+        8,
+      );
+      expect(rotated.z - position.z).toBeCloseTo(POLE_MOUNT.height - BODY_ROLL_PIVOT_HEIGHT, 8);
+    }
+  });
+
   it('samples both wires by their independent geometric arc lengths', () => {
     expect(world.contact.wireLength!('positive')).not.toBeCloseTo(
       world.contact.wireLength!('negative'),
@@ -117,8 +135,8 @@ describe('paired overhead contact network', () => {
       const visitedSegments = new Set<string>();
       for (let distance = 0; distance < world.road.length * 2; distance += 0.18) {
         const road = world.road.sample(distance);
-        const roll = Math.sin(distance * 0.05) * 0.04;
-        const pitch = Math.cos(distance * 0.06) * 0.03;
+        const roll = Math.sin(distance * 0.05) * ((2.5 * Math.PI) / 180);
+        const pitch = Math.cos(distance * 0.06) * 0.035;
         const base = calculatePoleBase(
           road.position,
           road.yaw,
