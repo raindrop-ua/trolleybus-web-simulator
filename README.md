@@ -46,6 +46,8 @@ Dragging the camera leaves follow mode. Pausing stops simulated time while camer
 ## What's in this version
 
 - Three 12 m trolleybuses, fleet numbers **2001**, **2002** and **2003**, with animated wheels, steering, body suspension and three pairs of opening doors.
+- Photo-guided low-poly bodywork: a panoramic V-shaped front mask, sloping blue roof fairings, clear wheel arches, glazed doors and pole mounts just behind the roof centre.
+- Gentle outward body lean in corners, limited to **2.5°**, with a damped return to level. Wheels stay grounded and pole contact follows the sprung roof.
 - Five named places served in both directions: Station, Central Square, University, Riverside and Park. These are **ten directional stop visits per round trip**.
 - A directed road circuit made from arc-length sampled cubic Bézier segments, including terminal loops and slower curved sections.
 - Autonomous acceleration, braking, bend anticipation and a following gap between trolleybuses.

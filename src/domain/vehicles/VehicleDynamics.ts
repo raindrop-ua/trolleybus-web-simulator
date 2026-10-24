@@ -47,9 +47,12 @@ export function integrateVehicleDynamics(
   state.steeringAngle += clamp(targetSteering - state.steeringAngle, -0.9 * dt, 0.9 * dt);
 
   const lateralAcceleration = state.speed * state.speed * curvature;
-  const rollTarget = clamp(lateralAcceleration * 0.025, -0.085, 0.085);
+  // Positive curvature turns toward local +x; positive roll moves the roof toward -x.
+  // Limit the outward lean to 2.5° and damp it gently back to level after the turn.
+  const maximumRoll = (2.5 * Math.PI) / 180;
+  const rollTarget = clamp(lateralAcceleration * 0.028, -maximumRoll, maximumRoll);
   const pitchTarget = clamp(-state.acceleration * 0.012, -0.035, 0.035);
-  state.rollVelocity += (55 * (rollTarget - state.rollAngle) - 13 * state.rollVelocity) * dt;
+  state.rollVelocity += (40 * (rollTarget - state.rollAngle) - 12.8 * state.rollVelocity) * dt;
   state.pitchVelocity += (65 * (pitchTarget - state.pitchAngle) - 15 * state.pitchVelocity) * dt;
   state.rollAngle += state.rollVelocity * dt;
   state.pitchAngle += state.pitchVelocity * dt;

@@ -1,6 +1,7 @@
 import { unwrapNear } from '../../core/math/scalar';
 import { distance3 } from '../../core/math/vector';
 import type { ContactNetwork, PoleContact, Polarity, Vec3 } from '../types';
+import { BODY_ROLL_PIVOT_HEIGHT, POLE_MOUNT } from '../vehicles/VehicleGeometry';
 
 export interface PoleArticulationLimits {
   minimumElevation: number;
@@ -14,7 +15,7 @@ export const DEFAULT_POLE_LIMITS: PoleArticulationLimits = {
   maximumHorizontalSlew: (70 * Math.PI) / 180,
 };
 
-/** Body-local roll about +z, then pitch about +x, followed by chassis yaw. */
+/** Body-local roll then pitch around the suspension pivot, followed by chassis yaw. */
 export function calculatePoleBase(
   position: Vec3,
   yaw: number,
@@ -22,16 +23,16 @@ export function calculatePoleBase(
   roll = 0,
   pitch = 0,
 ): Vec3 {
-  const x = side * 0.38;
-  const y = 3.35;
-  const z = -3.2;
+  const x = side * POLE_MOUNT.halfSpacing;
+  const y = POLE_MOUNT.height - BODY_ROLL_PIVOT_HEIGHT;
+  const z = POLE_MOUNT.longitudinal;
   const rolledX = x * Math.cos(roll) - y * Math.sin(roll);
   const rolledY = x * Math.sin(roll) + y * Math.cos(roll);
   const pitchedY = rolledY * Math.cos(pitch) - z * Math.sin(pitch);
   const pitchedZ = rolledY * Math.sin(pitch) + z * Math.cos(pitch);
   return {
     x: position.x + rolledX * Math.cos(yaw) + pitchedZ * Math.sin(yaw),
-    y: position.y + pitchedY,
+    y: position.y + BODY_ROLL_PIVOT_HEIGHT + pitchedY,
     z: position.z - rolledX * Math.sin(yaw) + pitchedZ * Math.cos(yaw),
   };
 }

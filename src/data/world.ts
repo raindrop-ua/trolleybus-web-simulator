@@ -5,6 +5,7 @@ import {
 } from '../domain/overhead/ContactNetwork';
 import { RoadNetwork } from '../domain/roads/RoadNetwork';
 import type { StopDefinition, Vec3, WorldDefinition } from '../domain/types';
+import { FRONT_AXLE, REAR_AXLE } from '../domain/vehicles/VehicleGeometry';
 
 // Mirror the drawing convention so model doors at local -x face the outer curb.
 const point = (x: number, z: number): Vec3 => ({ x, y: 0, z: -z });
@@ -145,7 +146,7 @@ export function createWorldDefinition(): WorldDefinition {
       departureOffset: index * 8,
       length: 12,
       width: 2.55,
-      wheelbase: 6,
+      wheelbase: FRONT_AXLE - REAR_AXLE,
       poleLength: 7.8,
       maxSpeed: 10,
       acceleration: 1.15,
