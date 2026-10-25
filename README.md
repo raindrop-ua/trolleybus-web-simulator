@@ -72,12 +72,12 @@ Dragging the camera leaves follow mode. Pausing stops simulated time while camer
 - Gentle outward body lean in corners, limited to **2.5°**, with a damped return to level. Wheels stay grounded and pole contact follows the sprung roof.
 - Five named places served in both directions: Station, Central Square, University, Riverside and Park. These are **ten directional stop visits per round trip**.
 - A directed road circuit made from arc-length sampled cubic Bézier segments, including terminal loops and slower curved sections.
-- Autonomous acceleration, braking, bend anticipation and a following gap between trolleybuses.
+- Autonomous acceleration, braking, bend anticipation and a following gap between trolleybuses. Straight sections allow up to **39.6 km/h**, with lower limits near curves and terminals and the same smooth acceleration.
 - Arrival/departure events, planned times, measured timetable deviation and seeded passenger/dwell variation.
 - Separate positive and negative wires, contact-segment IDs, a paired depot turnout and numeric contact diagnostics.
 - Two **fixed 7.8 m poles per vehicle**. Contact points come from a geometric solver rather than a visual offset: the head lies on its assigned wire while remaining one pole length from its roof base.
 
-The route is a deliberately compressed **approximately 756 m round trip**, rather than the original specification's kilometre-scale route. Vehicles retain metre-scale proportions. Travel times and timetables belong to this miniature; this is not a geographic reconstruction or a real service timetable.
+The route is an **approximately 2.268 km round trip**, three times the original miniature's length, with the same ten directional stop visits. Distances between stops are tripled; vehicles, street widths and stop furniture retain metre-scale proportions. Passenger exchange takes **5–10 simulated seconds**, plus **0.55 seconds** each to open and close the doors: half the previous stop time, including seeded passenger variation. Travel times and timetables belong to this miniature; this is not a geographic reconstruction or a real service timetable.
 
 Vehicle source: [native Blender project](assets/vehicles/bkm32100d/source/bkm32100d.blend). The modular `bpy` generator is under `scripts/blender/`; dimensions live in `assets/vehicles/bkm32100d/model.json`. Supplied reference photographs are packed into the native project and excluded from the GLB. Scenery remains procedural.
 
@@ -94,7 +94,7 @@ Use Blender 5.2+ (`BLENDER_BIN` can point to its executable). Native axes are Z-
 
 ## Configuration and structure
 
-Edit `src/data/world.ts` to change road control points and speed limits, stop locations/dwell times, fleet parameters, initial spacing, departure offsets and the start time. Coordinates are metres, time is seconds, speeds are metres per second and angles are radians. Local vehicle forward is `+z`, up is `+y` and passenger doors are on local `-x`.
+Edit `src/data/world.ts` to change road control points and speed limits, stop locations/dwell times, fleet parameters, initial spacing, departure offsets and the start time. `src/data/layout.ts` sets the shared route/district scale used by road control points, stop offsets, scenery and overview framing. Runtime coordinates are metres, time is seconds, speeds are metres per second and angles are radians. Local vehicle forward is `+z`, up is `+y` and passenger doors are on local `-x`.
 
 ```text
 src/core/          Pure geometry and maths

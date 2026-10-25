@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { RoadPath, WorldDefinition } from '../../domain/types';
 import { Batch, box, labelTexture, material, mergeStaticEnvironment, rod } from './primitives';
 import { surfaceTexture } from './surfaceTextures';
+import { CROSS_STREET_X, ROUTE_SCALE } from '../../data/layout';
 
 function ribbon(road: RoadPath, width: number, y: number, color: string, map?: THREE.Texture) {
   const vertices: number[] = [];
@@ -54,7 +55,7 @@ export function createRoadScene(world: WorldDefinition) {
   const drain = material('#526967');
   for (let distance = 0; distance < world.road.length; distance += 2.5) {
     const s = world.road.sample(distance);
-    if (Math.abs(Math.abs(s.position.x) - 77) < 7) continue;
+    if (CROSS_STREET_X.some((x) => Math.abs(s.position.x - x) < 7)) continue;
     for (const side of [-1, 1]) {
       streetDetails.add(
         s.position.x + side * s.tangent.z * 4.15,
@@ -70,7 +71,7 @@ export function createRoadScene(world: WorldDefinition) {
   }
   for (let distance = 12; distance < world.road.length; distance += 53) {
     const s = world.road.sample(distance);
-    if (Math.abs(Math.abs(s.position.x) - 77) < 7) continue;
+    if (CROSS_STREET_X.some((x) => Math.abs(s.position.x - x) < 7)) continue;
     const grate = new THREE.Group();
     grate.position.set(s.position.x - s.tangent.z * 3.82, 0.002, s.position.z + s.tangent.x * 3.82);
     grate.rotation.y = s.yaw;
@@ -99,11 +100,11 @@ export function createRoadScene(world: WorldDefinition) {
     dash.rotation.y = s.yaw;
   }
   // The cross streets are shared city geometry, with zebra crossings at the boulevard.
-  for (const x of [-77, 77]) {
-    box(group, [13, 0.08, 168], [x, -0.11, 0], material(curb));
-    box(group, [9, 0.06, 168], [x, -0.045, 0], material('#697575'));
-    for (let z = -78; z <= 78; z += 10)
-      if (Math.abs(z) > 16) box(group, [0.14, 0.02, 3.6], [x, 0.001, z], paint);
+  for (const x of CROSS_STREET_X) {
+    box(group, [13, 0.08, 168 * ROUTE_SCALE], [x, -0.11, 0], material(curb));
+    box(group, [9, 0.06, 168 * ROUTE_SCALE], [x, -0.045, 0], material('#697575'));
+    for (let z = -78 * ROUTE_SCALE; z <= 78 * ROUTE_SCALE; z += 10)
+      if (Math.abs(z) > 16 * ROUTE_SCALE) box(group, [0.14, 0.02, 3.6], [x, 0.001, z], paint);
     const closest = Array.from({ length: 300 }, (_, i) =>
       world.road.sample((world.road.length * i) / 300),
     )

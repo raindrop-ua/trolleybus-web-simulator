@@ -3,8 +3,8 @@ import { AutonomousDriver } from '../driving/AutonomousDriver';
 import { createDynamicsState, integrateVehicleDynamics } from '../vehicles/VehicleDynamics';
 import { observeRoad } from '../driving/RoadAwareness';
 
-export const DOOR_TRANSITION_SECONDS = 1.1;
-export const clampDwell = (seconds: number): number => Math.max(8, Math.min(20, seconds));
+export const DOOR_TRANSITION_SECONDS = 0.55;
+export const clampDwell = (seconds: number): number => Math.max(4, Math.min(10, seconds));
 
 /** Timetable baselines use an unimpeded, reproducible run of the same driver and dynamics. */
 export class Timetable {

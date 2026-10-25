@@ -6,6 +6,7 @@ import { createTrolleybus, type TrolleybusVisual } from './vehicles/Trolleybus';
 import { OverheadScene } from './overhead/OverheadScene';
 import { CameraRig } from './cameras/CameraRig';
 import { LIGHTING_SETTINGS } from '../data/presentation';
+import { ROUTE_SCALE } from '../data/layout';
 import { createVehicleEnvironment } from './vehicles/vehicleEnvironment';
 
 export interface ViewState {
@@ -59,14 +60,14 @@ export class SceneRenderer {
       new THREE.HemisphereLight('#fff9e6', '#a3b9a4', LIGHTING_SETTINGS.hemisphereIntensity),
     );
     const sunlight = new THREE.DirectionalLight('#fff0d3', LIGHTING_SETTINGS.sunIntensity);
-    sunlight.position.set(-90, 180, 85);
+    sunlight.position.set(-90 * ROUTE_SCALE, 180 * ROUTE_SCALE, 85 * ROUTE_SCALE);
     sunlight.castShadow = true;
     sunlight.shadow.mapSize.set(2048, 2048);
-    sunlight.shadow.camera.left = -250;
-    sunlight.shadow.camera.right = 250;
-    sunlight.shadow.camera.top = 210;
-    sunlight.shadow.camera.bottom = -210;
-    sunlight.shadow.camera.far = 550;
+    sunlight.shadow.camera.left = -250 * ROUTE_SCALE;
+    sunlight.shadow.camera.right = 250 * ROUTE_SCALE;
+    sunlight.shadow.camera.top = 210 * ROUTE_SCALE;
+    sunlight.shadow.camera.bottom = -210 * ROUTE_SCALE;
+    sunlight.shadow.camera.far = 550 * ROUTE_SCALE;
     sunlight.shadow.normalBias = 0.09;
     sunlight.shadow.bias = -0.00015;
     this.scene.add(sunlight);

@@ -3,9 +3,10 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { CameraMode } from '../../state/useUIStore';
 import type { VehicleSnapshot } from '../../domain/types';
 import { CAMERA_SETTINGS } from '../../data/presentation';
+import { ROUTE_SCALE } from '../../data/layout';
 
 export class CameraRig {
-  readonly camera = new THREE.OrthographicCamera(-150, 150, 100, -100, 0.1, 1600);
+  readonly camera = new THREE.OrthographicCamera(-150, 150, 100, -100, 0.1, 1600 * ROUTE_SCALE);
   readonly controls: OrbitControls;
   private mode: CameraMode = 'overview';
   private span = CAMERA_SETTINGS.overview.span;

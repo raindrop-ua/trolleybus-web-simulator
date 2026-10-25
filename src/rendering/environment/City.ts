@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { WorldDefinition } from '../../domain/types';
 import { Batch, box, labelTexture, material, mergeStaticEnvironment } from './primitives';
 import { CITY_SETTINGS } from '../../data/presentation';
+import { CROSS_STREET_X, ROUTE_SCALE } from '../../data/layout';
 
 function random(seed: number) {
   let value = seed;
@@ -14,8 +15,8 @@ function random(seed: number) {
 function island() {
   const group = new THREE.Group();
   const shape = new THREE.Shape();
-  const w = 224,
-    h = 112,
+  const w = 224 * ROUTE_SCALE,
+    h = 112 * ROUTE_SCALE,
     r = 12;
   shape.moveTo(-w + r, -h);
   shape.lineTo(w - r, -h);
@@ -61,28 +62,42 @@ export function createCity(world: WorldDefinition) {
   const nearest = (x: number, z: number) =>
     Math.sqrt(Math.min(...roadSamples.map((p) => (p.x - x) ** 2 + (p.z - z) ** 2)));
   // A quiet river defines the far edge of the district.
-  box(group, [432, 0.12, 22], [0, -0.07, -89], material('#87b9bc', 0.6));
-  for (const z of [-102, -76]) box(group, [430, 0.16, 5], [0, -0.02, z], material('#ded8bd'));
-  for (let i = 0; i < 52; i++) {
-    const x = -209 + rand() * 418,
-      z = -98 + rand() * 18;
+  box(
+    group,
+    [432 * ROUTE_SCALE, 0.12, 22 * ROUTE_SCALE],
+    [0, -0.07, -89 * ROUTE_SCALE],
+    material('#87b9bc', 0.6),
+  );
+  for (const z of [-102 * ROUTE_SCALE, -76 * ROUTE_SCALE])
+    box(group, [430 * ROUTE_SCALE, 0.16, 5], [0, -0.02, z], material('#ded8bd'));
+  for (let i = 0; i < 52 * ROUTE_SCALE; i++) {
+    const x = (-209 + rand() * 418) * ROUTE_SCALE,
+      z = (-98 + rand() * 18) * ROUTE_SCALE;
     cubes.add(x, 0.015, z, 2 + rand() * 7, 0.025, 0.12, '#b0d4ce');
   }
-  for (const x of [-77, 77]) {
-    box(group, [13, 0.32, 31], [x, 0.12, -89], material('#c7c5b4'));
-    box(group, [9, 0.07, 32], [x, 0.33, -89], material('#707c7b'));
+  for (const x of CROSS_STREET_X) {
+    box(group, [13, 0.32, 31 * ROUTE_SCALE], [x, 0.12, -89 * ROUTE_SCALE], material('#c7c5b4'));
+    box(group, [9, 0.07, 32 * ROUTE_SCALE], [x, 0.33, -89 * ROUTE_SCALE], material('#707c7b'));
     for (const side of [-1, 1]) {
-      box(group, [0.2, 0.2, 31], [x + side * 5.8, 1.6, -89], material('#8e9c93'));
-      for (let z = -103; z < -74; z += 3)
+      box(
+        group,
+        [0.2, 0.2, 31 * ROUTE_SCALE],
+        [x + side * 5.8, 1.6, -89 * ROUTE_SCALE],
+        material('#8e9c93'),
+      );
+      for (let z = -103 * ROUTE_SCALE; z < -74 * ROUTE_SCALE; z += 3)
         box(group, [0.13, 1.5, 0.13], [x + side * 5.8, 0.85, z], material('#8e9c93'));
     }
   }
   // Apartments: restrained plaster colours, flat roofs, balconies, and repeated windows.
   const colors = CITY_SETTINGS.buildingColors;
-  for (let x = -186; x <= 186; x += 32)
-    for (const z of [-57, -30, 37, 68]) {
-      if (Math.abs(x - 77) < 13 || Math.abs(x + 77) < 13 || nearest(x, z) < 20) continue;
-      if ((x > 105 && z > 0) || (x < -125 && z < -35)) continue;
+  const buildingRows = [-57, -30, 37, 68].map((z) => z * ROUTE_SCALE);
+  for (let x = -186 * ROUTE_SCALE; x <= 186 * ROUTE_SCALE; x += 32)
+    for (const z of buildingRows) {
+      if (CROSS_STREET_X.some((street) => Math.abs(x - street) < 13) || nearest(x, z) < 20)
+        continue;
+      if ((x > 105 * ROUTE_SCALE && z > 0) || (x < -125 * ROUTE_SCALE && z < -35 * ROUTE_SCALE))
+        continue;
       const width = 16 + rand() * 8,
         depth = 11 + rand() * 5,
         floors = 2 + Math.floor(rand() * 5),
@@ -263,36 +278,53 @@ export function createCity(world: WorldDefinition) {
       foliage.add(x + 3.2, 0.93, z + facing * (depth / 2 + 1), 1.3, 0.55, 0.58, '#7b9368');
     }
   // The civic square: paving, a fountain and a few steps.
-  box(group, [42, 0.11, 24], [4, -0.02, 36], material('#d7d0b8'));
-  for (let x = -16; x <= 24; x += 2) cubes.add(x, 0.041, 36, 0.035, 0.012, 23.8, '#bdbdaa');
-  for (let z = 25; z <= 47; z += 2) cubes.add(4, 0.042, z, 41.8, 0.012, 0.035, '#bdbdaa');
-  for (const x of [-13, 21]) {
-    cubes.add(x, 0.25, 28, 4, 0.5, 2.3, '#b7b69b');
+  const squareX = 4 * ROUTE_SCALE,
+    squareZ = 36 * ROUTE_SCALE;
+  box(group, [42, 0.11, 24], [squareX, -0.02, squareZ], material('#d7d0b8'));
+  for (let x = squareX - 20; x <= squareX + 20; x += 2)
+    cubes.add(x, 0.041, squareZ, 0.035, 0.012, 23.8, '#bdbdaa');
+  for (let z = squareZ - 11; z <= squareZ + 11; z += 2)
+    cubes.add(squareX, 0.042, z, 41.8, 0.012, 0.035, '#bdbdaa');
+  for (const x of [squareX - 17, squareX + 17]) {
+    cubes.add(x, 0.25, squareZ - 8, 4, 0.5, 2.3, '#b7b69b');
     for (let shrub = 0; shrub < 3; shrub++)
-      foliage.add(x - 1.25 + shrub * 1.25, 0.74, 28, 0.85, 0.68, 0.76, '#819365');
+      foliage.add(x - 1.25 + shrub * 1.25, 0.74, squareZ - 8, 0.85, 0.68, 0.76, '#819365');
   }
   const fountain = new THREE.Mesh(
     new THREE.CylinderGeometry(4.1, 4.5, 0.65, 16),
     material('#b3b9a6'),
   );
-  fountain.position.set(4, 0.3, 36);
+  fountain.position.set(squareX, 0.3, squareZ);
   group.add(fountain);
   const water = new THREE.Mesh(new THREE.CylinderGeometry(3.7, 3.7, 0.08, 16), material('#85b3ad'));
-  water.position.set(4, 0.66, 36);
+  water.position.set(squareX, 0.66, squareZ);
   group.add(water);
   const sculpture = new THREE.Mesh(new THREE.IcosahedronGeometry(1.4, 0), material('#bcab7f'));
-  sculpture.position.set(4, 2.2, 36);
+  sculpture.position.set(squareX, 2.2, squareZ);
   group.add(sculpture);
-  box(group, [2, 0.9, 2], [4, 1.1, 36], material('#d9d2b9'));
+  box(group, [2, 0.9, 2], [squareX, 1.1, squareZ], material('#d9d2b9'));
   // Park paths and a small pavilion at the east terminal.
-  box(group, [69, 0.035, 2.8], [162, -0.06, 55], material('#d9cfad'));
-  box(group, [2.8, 0.035, 46], [172, -0.06, 59], material('#d9cfad'));
-  box(group, [11, 0.2, 9], [160, 0.04, 69], material('#d3c6a6'));
-  for (const x of [155.5, 164.5])
-    for (const z of [65.5, 72.5]) cubes.add(x, 1.8, z, 0.25, 3.6, 0.25, '#e3d5b2');
+  box(
+    group,
+    [69 * ROUTE_SCALE, 0.035, 2.8],
+    [162 * ROUTE_SCALE, -0.06, 55 * ROUTE_SCALE],
+    material('#d9cfad'),
+  );
+  box(
+    group,
+    [2.8, 0.035, 46 * ROUTE_SCALE],
+    [172 * ROUTE_SCALE, -0.06, 59 * ROUTE_SCALE],
+    material('#d9cfad'),
+  );
+  const pavilionX = 160 * ROUTE_SCALE,
+    pavilionZ = 69 * ROUTE_SCALE;
+  box(group, [11, 0.2, 9], [pavilionX, 0.04, pavilionZ], material('#d3c6a6'));
+  for (const x of [pavilionX - 4.5, pavilionX + 4.5])
+    for (const z of [pavilionZ - 3.5, pavilionZ + 3.5])
+      cubes.add(x, 1.8, z, 0.25, 3.6, 0.25, '#e3d5b2');
   const roof = new THREE.Mesh(new THREE.ConeGeometry(8, 3, 4), material('#849079'));
   roof.rotation.y = Math.PI / 4;
-  roof.position.set(160, 4.9, 69);
+  roof.position.set(pavilionX, 4.9, pavilionZ);
   group.add(roof);
   const treeColors = ['#8d9e5d', '#a6ae68', '#748d59', '#97a773', '#b1b979'];
   function tree(x: number, z: number, size = 1) {
@@ -349,13 +381,15 @@ export function createCity(world: WorldDefinition) {
     }
   }
   for (let i = 0; i < CITY_SETTINGS.treeCount; i++) {
-    const x = -207 + rand() * 414,
-      z = -70 + rand() * 164;
-    if (nearest(x, z) < 12 || Math.abs(x - 77) < 9 || Math.abs(x + 77) < 9) continue;
+    const x = (-207 + rand() * 414) * ROUTE_SCALE,
+      z = (-70 + rand() * 164) * ROUTE_SCALE;
+    if (nearest(x, z) < 12 || CROSS_STREET_X.some((street) => Math.abs(x - street) < 9)) continue;
     // Keep apartment footprints free of trees.
-    const collision = [-57, -30, 37, 68].some(
+    const collision = buildingRows.some(
       (bz) =>
-        Math.abs(z - bz) < 11 && Math.abs(((x + 186 + 16) % 32) - 16) < 13 && !(x > 105 && bz > 0),
+        Math.abs(z - bz) < 11 &&
+        Math.abs(((x + 186 * ROUTE_SCALE + 16) % 32) - 16) < 13 &&
+        !(x > 105 * ROUTE_SCALE && bz > 0),
     );
     if (!collision) tree(x, z, 0.8 + rand() * 0.55);
   }
@@ -363,13 +397,15 @@ export function createCity(world: WorldDefinition) {
     const s = world.road.sample(d);
     const x = s.position.x - s.tangent.z * 12,
       z = s.position.z + s.tangent.x * 12;
-    if (Math.abs(x - 77) > 10 && Math.abs(x + 77) > 10 && nearest(x, z) > 9) tree(x, z, 0.85);
+    if (CROSS_STREET_X.every((street) => Math.abs(x - street) > 10) && nearest(x, z) > 9)
+      tree(x, z, 0.85);
   }
   // Riverside promenade: repeated trees and wooden benches.
-  for (let x = -198; x < 206; x += 22) {
-    if (Math.abs(x - 77) > 12 && Math.abs(x + 77) > 12) tree(x, -71, 0.8);
+  for (let x = -198 * ROUTE_SCALE; x < 206 * ROUTE_SCALE; x += 22) {
+    if (CROSS_STREET_X.every((street) => Math.abs(x - street) > 12))
+      tree(x, -71 * ROUTE_SCALE, 0.8);
   }
-  for (const [x, z] of [
+  for (const [baseX, baseZ] of [
     [22, 46],
     [-15, 46],
     [150, 57],
@@ -377,6 +413,8 @@ export function createCity(world: WorldDefinition) {
     [-33, -69],
     [33, -69],
   ]) {
+    const x = baseX * ROUTE_SCALE,
+      z = baseZ * ROUTE_SCALE;
     for (let slat = 0; slat < 4; slat++)
       cubes.add(x, 0.9, z - 0.3 + slat * 0.2, 3.6, 0.12, 0.16, '#a58a60');
     for (let slat = 0; slat < 3; slat++)
@@ -391,8 +429,9 @@ export function createCity(world: WorldDefinition) {
     rounds.add(x + 2.7, 1.265, z + 0.2, 0.21, 0.01, 0.21, '#344c45');
   }
   // Parked cars remain scenery, separate from the autonomous fleet.
-  for (const [i, x] of [-151, -110, -45, 43, 112].entries()) {
-    const z = i % 2 === 0 ? 22 : -23;
+  for (const [i, baseX] of [-151, -110, -45, 43, 112].entries()) {
+    const x = baseX * ROUTE_SCALE;
+    const z = (i % 2 === 0 ? 22 : -23) * ROUTE_SCALE;
     const color = ['#b2b9ad', '#d4c19a', '#a47a68', '#809b9b', '#d9d5c3'][i];
     cubes.add(x, 0.55, z, 1.82, 0.63, 4.1, color);
     cubes.add(x, 0.92, z + 1.38, 1.72, 0.13, 1.25, color);
@@ -430,7 +469,7 @@ export function createCity(world: WorldDefinition) {
     }),
   );
   placard.rotation.x = -Math.PI / 2;
-  placard.position.set(-165, -0.05, 86);
+  placard.position.set(-165 * ROUTE_SCALE, -0.05, 86 * ROUTE_SCALE);
   group.add(placard);
   cubes.build(group);
   foliage.build(group);
