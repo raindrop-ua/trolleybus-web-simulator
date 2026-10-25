@@ -361,8 +361,21 @@ describe('fleet simulation and timetables', () => {
         expect(event.deviation).toBeCloseTo(event.actualTime - event.plannedTime, 8);
       const firstArrival = arrivals[0]!;
       const firstDeparture = events.find((event) => event.kind === 'departure')!;
-      expect(firstDeparture.actualTime - firstArrival.actualTime).toBeGreaterThanOrEqual(10.19);
-      expect(firstDeparture.actualTime - firstArrival.actualTime).toBeLessThan(22.4);
+      expect(firstDeparture.actualTime - firstArrival.actualTime).toBeGreaterThanOrEqual(5.09);
+      expect(firstDeparture.actualTime - firstArrival.actualTime).toBeLessThan(11.2);
+      for (const arrival of arrivals) {
+        const departure = events.find(
+          (event) => event.kind === 'departure' && event.actualTime > arrival.actualTime,
+        );
+        if (!departure) continue;
+        const stop = world.stops.find((stop) => stop.id === arrival.stopId)!;
+        const stoppedSeconds = departure.actualTime - arrival.actualTime;
+        expect(departure.stopId).toBe(arrival.stopId);
+        // Half the old dwell and passenger variation, plus two 0.55 s door transitions.
+        expect(stoppedSeconds).toBeGreaterThanOrEqual(stop.dwellSeconds + 1.09);
+        expect(stoppedSeconds).toBeLessThan(Math.min(stop.dwellSeconds + 3, 10) + 1.2);
+        expect(departure.plannedTime - arrival.plannedTime).toBeCloseTo(stop.dwellSeconds + 1.1, 6);
+      }
       // A long passenger exchange changes the actual deviation without rewriting its planned time.
       expect(firstDeparture.deviation - firstArrival.deviation).toBeGreaterThanOrEqual(-0.01);
       const secondArrival = arrivals[1]!;

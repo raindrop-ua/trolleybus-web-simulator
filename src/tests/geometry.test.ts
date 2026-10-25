@@ -95,6 +95,15 @@ describe('twelve-metre trolleybus layout', () => {
 });
 
 describe('directed arc-length road graph', () => {
+  it('triples the original 756.096 m circuit and leaves at least 130 m between stop visits', () => {
+    expect(world.road.length).toBeCloseTo(3 * 756.0964252, 6);
+    world.stops.forEach((stop, index) => {
+      const next = world.stops[(index + 1) % world.stops.length]!;
+      const gap = (next.distance - stop.distance + world.road.length) % world.road.length;
+      expect(gap).toBeGreaterThan(130);
+    });
+  });
+
   it('wraps distance and joins every segment continuously', () => {
     expect(
       distance3(world.road.sample(0).position, world.road.sample(world.road.length).position),

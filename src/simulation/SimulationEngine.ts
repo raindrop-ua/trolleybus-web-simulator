@@ -290,7 +290,7 @@ export class SimulationEngine {
     vehicle.currentStopId = stop.id;
     vehicle.state = 'doors-opening';
     vehicle.phaseElapsed = 0;
-    vehicle.dwellSeconds = clampDwell(stop.dwellSeconds + this.random.integer(0, 6));
+    vehicle.dwellSeconds = clampDwell(stop.dwellSeconds + this.random.integer(0, 6) / 2);
     vehicle.passengers = Math.max(
       3,
       Math.min(65, vehicle.passengers + this.random.integer(-9, 13)),

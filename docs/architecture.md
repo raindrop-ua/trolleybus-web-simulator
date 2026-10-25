@@ -20,7 +20,7 @@ The simulation owns behaviour and produces snapshots. The renderer consumes thos
 
 `src/data/world.ts` defines a closed, directed circuit from cubic Bézier segments. Each segment has an ID and speed limit. `RoadNetwork` computes segment lengths and exposes `sample(distance)`, returning position, tangent, yaw, curvature and segment ID. Route distance wraps at the end of the circuit; a vehicle's total distance remains unwrapped so lap boundaries do not reset its progression.
 
-The configured circuit is approximately **756 m per round trip**, compressed from the kilometre-scale route in the specification. It has outbound and inbound carriageways, a loop at each end, five physical places and ten directional stop records. Three vehicles start approximately one third of a route apart, with staggered release times. This is a miniature layout, not surveyed Dnipro geography.
+The configured circuit is approximately **2.268 km per round trip**, three times the original 756 m miniature. The shared scale in `data/layout.ts` applies to road control points, stop offsets, district layout and overview framing; vehicle dimensions, road widths and street furniture stay in metres. It has outbound and inbound carriageways, a loop at each end, five physical places and ten directional stop records. Three vehicles start approximately one third of a route apart, with staggered release times. This is a miniature layout, not surveyed Dnipro geography.
 
 Positions and distances are metres; velocities are metres per second; accelerations are metres per second squared; times are seconds; angles are radians. World `+y` is up. Vehicle local `+z` points forward and doors occupy local `-x`.
 
@@ -47,7 +47,7 @@ waiting → driving ↔ braking → doors-opening → dwelling → doors-closing
                                       contact failure → disconnected
 ```
 
-Vehicles complete their stop at rest, animate the door transition and dwell before continuing. Passenger counts and additional dwell variation come from `SeededRandom`. `Timetable` estimates an unimpeded baseline by running the same driver/dynamics model. Actual arrival/departure times are recorded separately, so delays do not rewrite their planned times.
+Vehicles complete their stop at rest, animate the door transition and dwell before continuing. Door transitions take 0.55 seconds each; configured base dwell times are 5–8 seconds with seeded passenger variation of 0–3 seconds, clamped to 4–10 seconds. All stop phases take half their original duration. Passenger counts and additional dwell variation come from `SeededRandom`. `Timetable` estimates an unimpeded baseline by running the same driver/dynamics model. Actual arrival/departure times are recorded separately, so delays do not rewrite their planned times.
 
 ## Fixed simulation time
 

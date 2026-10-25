@@ -1,6 +1,11 @@
+import { ROUTE_SCALE } from './layout';
+
 /** Presentation-only settings, independent from simulation geometry and timing. */
 export const CAMERA_SETTINGS = {
-  overview: { span: 177, offset: { x: 180, y: 205, z: 245 } },
+  overview: {
+    span: 215 * ROUTE_SCALE,
+    offset: { x: 180 * ROUTE_SCALE, y: 205 * ROUTE_SCALE, z: 245 * ROUTE_SCALE },
+  },
   // Orthographic framing is set by span. Stand back to keep foreground buildings
   // in front of the near plane when following a vehicle at close visual zoom.
   follow: { span: 43, offset: { x: 162, y: 168, z: 216 }, damping: 5 },
@@ -9,7 +14,7 @@ export const CAMERA_SETTINGS = {
 };
 export const CITY_SETTINGS = {
   seed: 246,
-  treeCount: 150,
+  treeCount: 150 * ROUTE_SCALE ** 2,
   buildingColors: ['#dbcaac', '#e6d9bf', '#c5cbb4', '#cbab94', '#e0cbb5', '#bfc9bf'],
 };
 export const LIGHTING_SETTINGS = {
